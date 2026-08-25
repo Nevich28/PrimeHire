@@ -8,7 +8,7 @@
  */
 
 import { Ionicons } from '@expo/vector-icons';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -18,6 +18,7 @@ import {
   TextInput,
   useWindowDimensions,
   View,
+  type LayoutChangeEvent,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
@@ -25,10 +26,40 @@ import {
 
 import { colors, elevation, monoFont, radius, spacing, typography, WIDE_BREAKPOINT } from './theme';
 
+/* ------------------------------------------------------------ responsive -- */
+
+const ViewportWidthContext = createContext<number | null>(null);
+
+/**
+ * Measures the app's own container rather than trusting `Dimensions`.
+ *
+ * `useWindowDimensions` is the obvious choice and it is correct on device, but
+ * on the web it did not re-emit when the browser window was resized, so the
+ * layout stayed on whichever side of the breakpoint it started on. `onLayout`
+ * is driven by a resize observer on the web and by the native layout pass on
+ * device, so one code path is right on both.
+ */
+export function ViewportProvider({ children }: { children: ReactNode }) {
+  const [width, setWidth] = useState<number | null>(null);
+
+  const measure = (event: LayoutChangeEvent) => {
+    const next = Math.round(event.nativeEvent.layout.width);
+    setWidth((current) => (current === next ? current : next));
+  };
+
+  return (
+    <View style={styles.viewport} onLayout={measure}>
+      <ViewportWidthContext.Provider value={width}>{children}</ViewportWidthContext.Provider>
+    </View>
+  );
+}
+
 /** True once there is room to show the schedule and an inspection side by side. */
 export function useIsWide(): boolean {
+  const measured = useContext(ViewportWidthContext);
+  // Falls back to the window until the first layout pass has happened.
   const { width } = useWindowDimensions();
-  return width >= WIDE_BREAKPOINT;
+  return (measured ?? width) >= WIDE_BREAKPOINT;
 }
 
 /* ------------------------------------------------------------------ text -- */
@@ -420,6 +451,7 @@ export function DetailRow({
 }
 
 const styles = StyleSheet.create({
+  viewport: { flex: 1 },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
