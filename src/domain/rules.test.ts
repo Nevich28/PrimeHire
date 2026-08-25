@@ -3,7 +3,12 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import { parseInstant } from './datetime.ts';
-import { evaluateInspection, evaluateSchedule, groupIssuesByInspection } from './rules.ts';
+import {
+  dedupeSymmetricIssues,
+  evaluateInspection,
+  evaluateSchedule,
+  groupIssuesByInspection,
+} from './rules.ts';
 import type { RuleContext } from './rules.ts';
 import type { Dataset, Inspection } from './types.ts';
 
@@ -167,6 +172,27 @@ test('back-to-back work on two different sites warns about travel time', () => {
   assert.ok(travel, 'expected a travel warning between Frauenfeld and St. Gallen');
   assert.match(travel!.message, /Only 30 min/);
   assert.equal(travel!.relatedInspectionId, 'insp-1004');
+});
+
+test('a two-sided clash is one problem in the feed, but flagged on both cards', () => {
+  const all = evaluateSchedule(context);
+  const feed = dedupeSymmetricIssues(all);
+
+  const clashesEverywhere = all.filter((issue) => issue.code === 'double_booked');
+  assert.equal(clashesEverywhere.length, 2, 'both inspections carry the clash');
+
+  const clashesInFeed = feed.filter((issue) => issue.code === 'double_booked');
+  assert.equal(clashesInFeed.length, 1, 'the feed counts the clash once');
+  assert.equal(clashesInFeed[0].inspectionId, 'insp-1002', 'kept on the earlier inspection');
+  assert.equal(clashesInFeed[0].relatedInspectionId, 'insp-1003');
+
+  // Nothing else is lost on the way.
+  assert.equal(all.length - feed.length, 1);
+  assert.equal(
+    feed.filter((issue) => issue.severity === 'blocker').length,
+    3,
+    'two unassigned inspections and one double booking'
+  );
 });
 
 test('the attention feed is ordered worst first', () => {

@@ -58,7 +58,7 @@ export function ScheduleShell({
   const [filter, setFilter] = useState<FilterKey>('upcoming');
   const [query, setQuery] = useState('');
 
-  const { items, issuesByInspection, issues, now } = schedule;
+  const { items, issuesByInspection, feedIssues, now } = schedule;
 
   const filterCounts = useMemo(
     () => ({
@@ -130,7 +130,7 @@ export function ScheduleShell({
           {!isWide ? <Header now={now} onOpenInspectors={onOpenInspectors} /> : null}
 
           <AttentionFeed
-            issues={issues}
+            issues={feedIssues}
             byId={schedule.byId}
             context={schedule.context}
             now={now}

@@ -9,7 +9,7 @@
 import { useMemo } from 'react';
 
 import { now } from '@/domain/clock';
-import { evaluateSchedule, groupIssuesByInspection } from '@/domain/rules';
+import { dedupeSymmetricIssues, evaluateSchedule, groupIssuesByInspection } from '@/domain/rules';
 import type { Issue, RuleContext } from '@/domain/rules';
 import { buildRuleContext, resolveAll } from '@/domain/selectors';
 import { useInspectionStore } from '@/domain/store';
@@ -18,7 +18,10 @@ import type { ResolvedInspection } from '@/domain/types';
 export type Schedule = {
   items: ResolvedInspection[];
   byId: Record<string, ResolvedInspection>;
+  /** Every issue, from every affected inspection's point of view. */
   issues: Issue[];
+  /** One entry per actual problem: two-sided clashes counted once. */
+  feedIssues: Issue[];
   issuesByInspection: Record<string, Issue[]>;
   context: RuleContext;
   now: number;
@@ -39,6 +42,7 @@ export function useSchedule(): Schedule {
       items,
       byId: Object.fromEntries(items.map((item) => [item.inspection.id, item])),
       issues,
+      feedIssues: dedupeSymmetricIssues(issues),
       issuesByInspection: groupIssuesByInspection(issues),
       context,
       now: nowMs,

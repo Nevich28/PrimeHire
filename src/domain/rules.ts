@@ -254,6 +254,33 @@ export function evaluateSchedule(context: RuleContext): Issue[] {
   });
 }
 
+/**
+ * Clashes are reported from both sides, because each inspection genuinely has
+ * the problem and each card has to show it. A list of things to fix is a
+ * different list: a double booking is one problem, not two, and resolving
+ * either side clears both.
+ */
+const SYMMETRIC_CODES: IssueCode[] = ['double_booked', 'tight_travel'];
+
+/**
+ * Collapse each two-sided clash into a single entry.
+ *
+ * The surviving entry is the one on the earlier inspection, since
+ * `evaluateSchedule` has already ordered them — which is also the one a
+ * coordinator reads first.
+ */
+export function dedupeSymmetricIssues(issues: Issue[]): Issue[] {
+  const seen = new Set<string>();
+  return issues.filter((issue) => {
+    if (!issue.relatedInspectionId || !SYMMETRIC_CODES.includes(issue.code)) return true;
+    const pair = [issue.inspectionId, issue.relatedInspectionId].sort().join('|');
+    const key = `${issue.code}:${pair}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /** Issues bucketed by inspection id, for rendering badges on list rows. */
 export function groupIssuesByInspection(issues: Issue[]): Record<string, Issue[]> {
   const grouped: Record<string, Issue[]> = {};
