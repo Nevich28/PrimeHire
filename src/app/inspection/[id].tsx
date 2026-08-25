@@ -46,7 +46,7 @@ export default function InspectionRoute() {
       issues={schedule.issuesByInspection[item.inspection.id] ?? []}
       now={schedule.now}
       onEdit={() =>
-        router.push({ pathname: '/inspection/[id]/edit', params: { id: item.inspection.id } })
+        router.navigate({ pathname: '/inspection/[id]/edit', params: { id: item.inspection.id } })
       }
       // Assigning is one decision, so it opens the picker here rather than
       // routing through the whole edit form to change a single field.
@@ -101,8 +101,8 @@ export default function InspectionRoute() {
           selectedId={id}
           detail={detail}
           onSelect={(next) => router.replace({ pathname: '/inspection/[id]', params: { id: next } })}
-          onCreate={() => router.push('/inspection/new')}
-          onOpenInspectors={() => router.push('/inspectors')}
+          onCreate={() => router.navigate('/inspection/new')}
+          onOpenInspectors={() => router.navigate('/inspectors')}
         />
         {dialogs}
       </>

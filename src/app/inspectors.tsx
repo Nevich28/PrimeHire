@@ -72,7 +72,7 @@ export default function InspectorsRoute() {
                       key={item.inspection.id}
                       accessibilityRole="button"
                       onPress={() =>
-                        router.push({
+                        router.navigate({
                           pathname: '/inspection/[id]',
                           params: { id: item.inspection.id },
                         })

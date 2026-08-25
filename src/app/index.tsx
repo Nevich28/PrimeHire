@@ -15,9 +15,11 @@ export default function ScheduleRoute() {
 
   return (
     <ScheduleShell
-      onSelect={(id) => router.push({ pathname: '/inspection/[id]', params: { id } })}
-      onCreate={() => router.push('/inspection/new')}
-      onOpenInspectors={() => router.push('/inspectors')}
+      // navigate rather than push: tapping the same row twice, which is easy to
+      // do on a phone, should not stack the same screen on top of itself.
+      onSelect={(id) => router.navigate({ pathname: '/inspection/[id]', params: { id } })}
+      onCreate={() => router.navigate('/inspection/new')}
+      onOpenInspectors={() => router.navigate('/inspectors')}
       detail={
         isWide ? (
           <EmptyState
