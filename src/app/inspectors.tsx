@@ -7,7 +7,7 @@ import { formatDayHeading, formatTimeRange } from '@/domain/datetime';
 import { workloadFor } from '@/domain/selectors';
 import { INSPECTOR_LIST } from '@/domain/seed';
 import { useSchedule } from '@/state/useSchedule';
-import { AppText, Badge, Card, EmptyState, IconButton } from '@/ui/primitives';
+import { AppText, Badge, Card, EmptyState, IconButton, type PressableState } from '@/ui/primitives';
 import { colors, CONTENT_MAX_WIDTH, radius, spacing } from '@/ui/theme';
 
 /**
@@ -77,7 +77,7 @@ export default function InspectorsRoute() {
                           params: { id: item.inspection.id },
                         })
                       }
-                      style={({ hovered }: { hovered?: boolean }) => [
+                      style={({ hovered }: PressableState) => [
                         styles.row,
                         hovered && { backgroundColor: colors.surfaceMuted },
                       ]}

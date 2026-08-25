@@ -28,7 +28,7 @@ import {
   statusPresentation,
   titleCase,
 } from '@/ui/presentation';
-import { AppText, Badge, Button, Card, DetailRow, Divider, toneColors } from '@/ui/primitives';
+import { AppText, Badge, Button, Card, DetailRow, Divider, toneColors, type PressableState } from '@/ui/primitives';
 import { colors, radius, spacing } from '@/ui/theme';
 
 export function InspectionDetail({
@@ -307,7 +307,7 @@ function ContactLink({
           /* No handler registered — nothing useful to do beyond ignoring it. */
         });
       }}
-      style={({ hovered }: { hovered?: boolean }) => [
+      style={({ hovered }: PressableState) => [
         styles.contactLink,
         hovered && Platform.OS === 'web' ? { opacity: 0.7 } : null,
       ]}

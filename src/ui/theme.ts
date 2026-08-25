@@ -17,9 +17,15 @@ export const colors = {
   border: '#E2E7EC',
   borderStrong: '#CBD3DB',
 
+  /*
+   * Three steps of emphasis, all of which clear WCAG AA (4.5:1) on both the
+   * surface and the muted surface — 17.5:1, 5.9:1 and 5.0:1 on white. The muted
+   * tone carries real data (project names, times, counts), not decoration, so
+   * it is not allowed to drift lighter than that for the sake of looks.
+   */
   text: '#151A21',
   textSecondary: '#5A6675',
-  textMuted: '#8B95A3',
+  textMuted: '#667180',
   textInverse: '#FFFFFF',
 
   accent: '#1B4E82',

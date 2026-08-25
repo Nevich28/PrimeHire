@@ -39,6 +39,7 @@ import {
   Input,
   toneColors,
   useIsWide,
+  type PressableState,
 } from '@/ui/primitives';
 import { disciplineIcon, severityPresentation, titleCase } from '@/ui/presentation';
 import { colors, CONTENT_MAX_WIDTH, radius, spacing } from '@/ui/theme';
@@ -196,7 +197,7 @@ export function InspectionForm({
             accessibilityRole="button"
             accessibilityLabel={project ? `Project: ${project.code}. Change project` : 'Choose a project'}
             onPress={() => setShowProjects(true)}
-            style={({ hovered }: { hovered?: boolean }) => [
+            style={({ hovered }: PressableState) => [
               styles.selector,
               hovered && { borderColor: colors.borderStrong },
               submitted && errors.project ? { borderColor: colors.blocker } : null,
@@ -317,7 +318,7 @@ export function InspectionForm({
               inspector ? `Inspector: ${inspector.name}. Change inspector` : 'Assign an inspector'
             }
             onPress={() => setShowInspectors(true)}
-            style={({ hovered }: { hovered?: boolean }) => [
+            style={({ hovered }: PressableState) => [
               styles.selector,
               hovered && { borderColor: colors.borderStrong },
             ]}

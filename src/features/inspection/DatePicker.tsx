@@ -22,7 +22,7 @@ import {
   toZurichParts,
   zurichDayKey,
 } from '@/domain/datetime';
-import { AppText, Input } from '@/ui/primitives';
+import { AppText, Input, type PressableState } from '@/ui/primitives';
 import { colors, radius, spacing } from '@/ui/theme';
 
 const WEEKDAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
@@ -73,7 +73,7 @@ export function DatePicker({
           accessibilityRole="button"
           accessibilityLabel="Previous month"
           onPress={() => shiftMonth(-1)}
-          style={({ hovered }: { hovered?: boolean }) => [
+          style={({ hovered }: PressableState) => [
             styles.monthNav,
             hovered && { backgroundColor: colors.neutralSoft },
           ]}
@@ -89,7 +89,7 @@ export function DatePicker({
           accessibilityRole="button"
           accessibilityLabel="Next month"
           onPress={() => shiftMonth(1)}
-          style={({ hovered }: { hovered?: boolean }) => [
+          style={({ hovered }: PressableState) => [
             styles.monthNav,
             hovered && { backgroundColor: colors.neutralSoft },
           ]}
@@ -120,7 +120,7 @@ export function DatePicker({
               accessibilityLabel={formatLongDate(cell.instant)}
               accessibilityState={{ selected }}
               onPress={() => onChange(cell.instant)}
-              style={({ hovered }: { hovered?: boolean }) => [
+              style={({ hovered }: PressableState) => [
                 styles.cell,
                 selected && { backgroundColor: colors.accent },
                 !selected && isToday && { borderColor: colors.accent, borderWidth: 1 },

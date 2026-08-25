@@ -8,7 +8,7 @@
  */
 
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { formatDayDistance, formatTime } from '@/domain/datetime';
@@ -16,7 +16,7 @@ import type { Issue, RuleContext } from '@/domain/rules';
 import { suggestResolution } from '@/domain/resolutions';
 import { useInspectionStore } from '@/domain/store';
 import type { ResolvedInspection } from '@/domain/types';
-import { AppText, Card, toneColors } from '@/ui/primitives';
+import { AppText, Card, toneColors, type PressableState } from '@/ui/primitives';
 import { severityPresentation } from '@/ui/presentation';
 import { colors, radius, spacing } from '@/ui/theme';
 
@@ -124,14 +124,21 @@ function AttentionRow({
   // Most entries here have exactly one sensible fix, and the product already
   // knows what it is. Offering it on the row is the difference between a list
   // of problems and a list of problems you can clear.
-  const resolution = item ? suggestResolution(issue, item.inspection, context) : null;
+  //
+  // Working it out means running every inspector against the whole schedule, so
+  // it is memoised: the row re-renders on hover and press, the answer does not
+  // change.
+  const resolution = useMemo(
+    () => (item ? suggestResolution(issue, item.inspection, context) : null),
+    [issue, item, context]
+  );
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${issue.message} ${item ? item.inspection.title : ''}`}
       onPress={onPress}
-      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+      style={({ pressed, hovered }: PressableState) => [
         styles.row,
         (hovered || pressed) && { backgroundColor: colors.surfaceMuted },
       ]}
@@ -164,12 +171,12 @@ function AttentionRow({
               event.stopPropagation?.();
               replaceInspection(resolution.next, resolution.description);
             }}
-            style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+            style={({ pressed, hovered }: PressableState) => [
               styles.resolve,
               (hovered || pressed) && { backgroundColor: colors.accent },
             ]}
           >
-            {({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => (
+            {({ hovered, pressed }: PressableState) => (
               <>
                 <Ionicons
                   name="flash-outline"

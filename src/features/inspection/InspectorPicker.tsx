@@ -18,7 +18,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { rankInspectorsForSlot } from '@/domain/rules';
 import type { RuleContext } from '@/domain/rules';
 import type { Inspection } from '@/domain/types';
-import { AppText, Badge, toneColors } from '@/ui/primitives';
+import { AppText, Badge, toneColors, type PressableState } from '@/ui/primitives';
 import { severityPresentation } from '@/ui/presentation';
 import { Sheet } from '@/ui/Sheet';
 import { colors, radius, spacing } from '@/ui/theme';
@@ -50,7 +50,7 @@ export function InspectorPicker({
         accessibilityRole="button"
         accessibilityLabel="Leave unassigned"
         onPress={() => onSelect(null)}
-        style={({ hovered }: { hovered?: boolean }) => [
+        style={({ hovered }: PressableState) => [
           styles.option,
           hovered && { backgroundColor: colors.surfaceMuted },
           draft.inspectorId === null && styles.optionSelected,
@@ -86,7 +86,7 @@ export function InspectorPicker({
             ].join('. ')}
             accessibilityState={{ selected }}
             onPress={() => onSelect(inspector.id)}
-            style={({ hovered }: { hovered?: boolean }) => [
+            style={({ hovered }: PressableState) => [
               styles.option,
               hovered && { backgroundColor: colors.surfaceMuted },
               selected && styles.optionSelected,

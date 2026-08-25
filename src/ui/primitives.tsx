@@ -18,6 +18,7 @@ import {
   useWindowDimensions,
   View,
   type LayoutChangeEvent,
+  type PressableStateCallbackType,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
@@ -25,8 +26,18 @@ import {
 
 import { colors, elevation, monoFont, radius, spacing, typography, WIDE_BREAKPOINT } from './theme';
 
-/** Pressable's style callback receives the current interaction state. */
-type PressableState = { pressed: boolean; hovered?: boolean };
+/**
+ * Interaction state passed to a Pressable's style callback.
+ *
+ * React Native's own type only declares `pressed`, because that is all a touch
+ * screen has. react-native-web adds hover and keyboard focus on top, so the two
+ * are combined here rather than re-declared loosely at every call site — which
+ * is what previously produced a style callback TypeScript could not match.
+ */
+export type PressableState = PressableStateCallbackType & {
+  hovered?: boolean;
+  focused?: boolean;
+};
 
 /* ------------------------------------------------------------ responsive -- */
 

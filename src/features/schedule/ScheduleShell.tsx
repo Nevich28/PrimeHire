@@ -22,7 +22,7 @@ import { COMPANY } from '@/domain/seed';
 import { useInspectionStore } from '@/domain/store';
 import type { ResolvedInspection } from '@/domain/types';
 import { useSchedule } from '@/state/useSchedule';
-import { AppText, Button, Chip, EmptyState, Input, useIsWide } from '@/ui/primitives';
+import { AppText, Button, Chip, EmptyState, Input, useIsWide, type PressableState } from '@/ui/primitives';
 import { colors, CONTENT_MAX_WIDTH, elevation, radius, spacing } from '@/ui/theme';
 
 import { AttentionFeed } from './AttentionFeed';
@@ -235,7 +235,7 @@ export function ScheduleShell({
             accessibilityRole="button"
             accessibilityLabel="Schedule inspection"
             onPress={onCreate}
-            style={({ pressed }: { pressed: boolean }) => [
+            style={({ pressed }: PressableState) => [
               styles.fab,
               elevation.raised,
               pressed && { backgroundColor: colors.accentHover },
@@ -285,7 +285,7 @@ function Header({ now, onOpenInspectors }: { now: number; onOpenInspectors: () =
         accessibilityRole="button"
         accessibilityLabel="Inspector workload"
         onPress={onOpenInspectors}
-        style={({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => [
+        style={({ hovered, pressed }: PressableState) => [
           styles.headerAction,
           (hovered || pressed) && { backgroundColor: colors.neutralSoft },
         ]}

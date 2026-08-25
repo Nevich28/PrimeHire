@@ -14,7 +14,7 @@ import { durationLabel, formatTime } from '@/domain/datetime';
 import type { Issue } from '@/domain/rules';
 import { worstSeverity } from '@/domain/rules';
 import type { ResolvedInspection } from '@/domain/types';
-import { AppText, Badge, toneColors } from '@/ui/primitives';
+import { AppText, Badge, toneColors, type PressableState } from '@/ui/primitives';
 import {
   disciplineIcon,
   priorityPresentation,
@@ -46,7 +46,7 @@ export function InspectionCard({
       accessibilityRole="button"
       accessibilityLabel={`${inspection.title}, ${project.code}, ${formatTime(item.start)}`}
       onPress={onPress}
-      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+      style={({ pressed, hovered }: PressableState) => [
         styles.card,
         elevation.card,
         selected && styles.cardSelected,

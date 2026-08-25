@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { PROJECT_LIST } from '@/domain/seed';
-import { AppText, Badge, Input } from '@/ui/primitives';
+import { AppText, Badge, Input, type PressableState } from '@/ui/primitives';
 import { projectStatusLabel } from '@/ui/presentation';
 import { Sheet } from '@/ui/Sheet';
 import { colors, radius, spacing } from '@/ui/theme';
@@ -58,7 +58,7 @@ export function ProjectPicker({
             accessibilityLabel={`${project.code}, ${project.name}`}
             accessibilityState={{ selected }}
             onPress={() => onSelect(project.id)}
-            style={({ hovered }: { hovered?: boolean }) => [
+            style={({ hovered }: PressableState) => [
               styles.option,
               hovered && { backgroundColor: colors.surfaceMuted },
               selected && styles.optionSelected,

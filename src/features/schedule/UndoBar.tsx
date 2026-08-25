@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useInspectionStore } from '@/domain/store';
-import { AppText } from '@/ui/primitives';
+import { AppText, type PressableState } from '@/ui/primitives';
 import { colors, elevation, radius, spacing } from '@/ui/theme';
 
 const VISIBLE_FOR_MS = 8000;
@@ -46,7 +46,7 @@ export function UndoBar({ bottomOffset = 0 }: { bottomOffset?: number }) {
         accessibilityRole="button"
         accessibilityLabel={`Undo: ${undo.message}`}
         onPress={undoLastChange}
-        style={({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => [
+        style={({ hovered, pressed }: PressableState) => [
           styles.action,
           (hovered || pressed) && { backgroundColor: 'rgba(255,255,255,0.16)' },
         ]}
@@ -60,7 +60,7 @@ export function UndoBar({ bottomOffset = 0 }: { bottomOffset?: number }) {
         accessibilityRole="button"
         accessibilityLabel="Dismiss"
         onPress={dismissUndo}
-        style={({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => [
+        style={({ hovered, pressed }: PressableState) => [
           styles.close,
           (hovered || pressed) && { backgroundColor: 'rgba(255,255,255,0.16)' },
         ]}
