@@ -56,8 +56,8 @@ export type InspectionState = {
   completeInspection: (id: string) => void;
   /** Puts a cancelled or completed inspection back on the schedule. */
   reopenInspection: (id: string) => void;
-  /** Writes an inspection the rules engine suggested, ready to be taken back. */
-  applyResolution: (next: Inspection, message: string) => void;
+  /** Writes a changed inspection straight through, ready to be taken back. */
+  replaceInspection: (next: Inspection, message: string) => void;
   /** Restores the record as it was before the last change. */
   undoLastChange: () => void;
   dismissUndo: () => void;
@@ -139,7 +139,7 @@ let state: InspectionState = {
     mapInspection(id, changes.reopenInspection, 'Put back on the schedule.');
   },
 
-  applyResolution: (next, message) => {
+  replaceInspection: (next, message) => {
     mapInspection(next.id, () => next, message);
   },
 

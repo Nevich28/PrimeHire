@@ -59,14 +59,11 @@ function durationChipLabel(minutes: number): string {
 
 export function InspectionForm({
   inspectionId,
-  focusInspector = false,
   onDone,
   onCancel,
 }: {
   /** Omitted when scheduling something new. */
   inspectionId?: string;
-  /** Opens straight into the inspector picker, for "assign" from the detail. */
-  focusInspector?: boolean;
   onDone: (inspectionId: string) => void;
   onCancel: () => void;
 }) {
@@ -104,7 +101,7 @@ export function InspectionForm({
   );
 
   const [showProjects, setShowProjects] = useState(false);
-  const [showInspectors, setShowInspectors] = useState(focusInspector);
+  const [showInspectors, setShowInspectors] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const parsedTime = parseTimeInput(time);

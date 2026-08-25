@@ -117,7 +117,7 @@ function AttentionRow({
   now: number;
   onPress: () => void;
 }) {
-  const applyResolution = useInspectionStore((state) => state.applyResolution);
+  const replaceInspection = useInspectionStore((state) => state.replaceInspection);
   const presentation = severityPresentation[issue.severity];
   const tone = toneColors(presentation.tone);
 
@@ -162,7 +162,7 @@ function AttentionRow({
               // on the web the click bubbles, so applying a fix would also open
               // the inspection.
               event.stopPropagation?.();
-              applyResolution(resolution.next, resolution.description);
+              replaceInspection(resolution.next, resolution.description);
             }}
             style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
               styles.resolve,

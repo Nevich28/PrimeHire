@@ -3,20 +3,19 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { InspectionForm } from '@/features/inspection/InspectionForm';
 
 /**
- * Editing, rescheduling and reassigning are the same screen.
+ * Editing and rescheduling are the same screen.
  *
- * Splitting them would mean three forms that can disagree with each other, and
- * in practice the three happen together: work moves and the person changes.
- * `?focus=inspector` opens straight into the inspector picker, so "assign"
- * still feels like one action rather than a detour through a form.
+ * Splitting them would mean two forms that can disagree with each other, and in
+ * practice they happen together: work moves and the details move with it.
+ * Reassigning is not here — that is one decision, and it happens in place on
+ * the inspection rather than through a form.
  */
 export default function EditInspectionRoute() {
-  const { id, focus } = useLocalSearchParams<{ id: string; focus?: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
 
   return (
     <InspectionForm
       inspectionId={id}
-      focusInspector={focus === 'inspector'}
       onDone={(savedId) => router.replace({ pathname: '/inspection/[id]', params: { id: savedId } })}
       onCancel={() =>
         router.canGoBack()

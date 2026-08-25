@@ -11,7 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
