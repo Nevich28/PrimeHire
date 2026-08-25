@@ -120,9 +120,8 @@ export function ScheduleShell({
       stickySectionHeadersEnabled
       contentContainerStyle={[
         styles.listContent,
-        // Room at the bottom for the floating action button and, on Android,
-        // for the system navigation bar the app draws behind.
-        !isWide && { paddingBottom: insets.bottom + 96 },
+        // Room at the bottom for the floating action button to sit over.
+        !isWide && { paddingBottom: 96 },
       ]}
       showsVerticalScrollIndicator={isWide}
       ListHeaderComponent={
@@ -218,27 +217,34 @@ export function ScheduleShell({
 
   if (!isWide) {
     return (
-      // The safe area belongs to the container rather than to the scroll
-      // content: that way the sticky day headings come to rest below the
-      // status bar and notch instead of underneath them.
-      <View style={[styles.screen, { paddingTop: insets.top }]}>
-        {list}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Schedule inspection"
-          onPress={onCreate}
-          style={({ pressed }: { pressed: boolean }) => [
-            styles.fab,
-            elevation.raised,
-            { bottom: insets.bottom + spacing.lg },
-            pressed && { backgroundColor: colors.accentHover },
-          ]}
-        >
-          <Ionicons name="add" size={22} color={colors.textInverse} />
-          <AppText variant="label" color={colors.textInverse}>
-            Schedule
-          </AppText>
-        </Pressable>
+      // The safe areas belong to the container rather than to the scroll
+      // content, so the list never renders underneath the status bar, the
+      // notch, or the Android navigation bar the app draws behind.
+      <View
+        style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
+      >
+        {/* The action button is absolutely positioned inside this inner layer,
+            which carries no padding of its own — web and Yoga disagree about
+            whether an absolute child sits inside or outside a parent's padding,
+            and this sidesteps the question entirely. */}
+        <View style={styles.safeArea}>
+          {list}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Schedule inspection"
+            onPress={onCreate}
+            style={({ pressed }: { pressed: boolean }) => [
+              styles.fab,
+              elevation.raised,
+              pressed && { backgroundColor: colors.accentHover },
+            ]}
+          >
+            <Ionicons name="add" size={22} color={colors.textInverse} />
+            <AppText variant="label" color={colors.textInverse}>
+              Schedule
+            </AppText>
+          </Pressable>
+        </View>
       </View>
     );
   }
@@ -358,6 +364,7 @@ function emptyMessage(filter: FilterKey): string {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
+  safeArea: { flex: 1 },
   flex: { flex: 1 },
   listContent: {
     padding: spacing.lg,
@@ -396,6 +403,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: spacing.lg,
+    bottom: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,

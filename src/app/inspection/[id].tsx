@@ -90,7 +90,7 @@ export default function InspectionRoute() {
   }
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <IconButton icon="chevron-back" label="Back to schedule" onPress={goBack} />
         <AppText variant="heading" numberOfLines={1} style={styles.headerTitle}>

@@ -26,7 +26,7 @@ export default function InspectorsRoute() {
   const inactive = INSPECTOR_LIST.filter((inspector) => !inspector.active);
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <IconButton
           icon="chevron-back"
@@ -39,7 +39,7 @@ export default function InspectorsRoute() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxl }]}
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         {active.map((inspector) => {

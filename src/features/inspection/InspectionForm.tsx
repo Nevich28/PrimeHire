@@ -180,7 +180,7 @@ export function InspectionForm({
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingBottom: insets.bottom }]}>
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <IconButton icon={isWide ? 'close' : 'chevron-back'} label="Discard" onPress={onCancel} />
         <AppText variant="heading" style={styles.flex} numberOfLines={1}>
@@ -190,7 +190,7 @@ export function InspectionForm({
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing.xxl }]}
+        contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
