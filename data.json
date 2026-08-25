@@ -1,0 +1,530 @@
+{
+  "meta": {
+    "exerciseDate": "2026-08-25",
+    "timezone": "Europe/Zurich",
+    "company": "Helvetia Civil Works AG"
+  },
+  "inspectors": [
+    {
+      "id": "ins-001",
+      "name": "Anna Keller",
+      "email": "anna.keller@example.test",
+      "phone": "+41 79 555 01 01",
+      "active": true,
+      "specialties": [
+        "structural",
+        "concrete",
+        "bridges"
+      ]
+    },
+    {
+      "id": "ins-002",
+      "name": "Lukas Meier",
+      "email": "lukas.meier@example.test",
+      "phone": "+41 79 555 01 02",
+      "active": true,
+      "specialties": [
+        "safety",
+        "roads",
+        "earthworks"
+      ]
+    },
+    {
+      "id": "ins-003",
+      "name": "Sofia Rossi",
+      "email": "sofia.rossi@example.test",
+      "phone": "+41 79 555 01 03",
+      "active": true,
+      "specialties": [
+        "electrical",
+        "tunnels",
+        "safety"
+      ]
+    },
+    {
+      "id": "ins-004",
+      "name": "David Baumann",
+      "email": "david.baumann@example.test",
+      "phone": null,
+      "active": true,
+      "specialties": [
+        "structural",
+        "facades"
+      ]
+    },
+    {
+      "id": "ins-005",
+      "name": "Marco Rossi",
+      "email": "marco.rossi@example.test",
+      "phone": "+41 79 555 01 05",
+      "active": false,
+      "specialties": [
+        "concrete",
+        "foundations"
+      ]
+    },
+    {
+      "id": "ins-006",
+      "name": "Nina Frei",
+      "email": "nina.frei@example.test",
+      "phone": "+41 79 555 01 06",
+      "active": true,
+      "specialties": [
+        "environmental",
+        "drainage",
+        "roads"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "prj-001",
+      "code": "A12-NA-018",
+      "name": "A12 East Viaduct Rehabilitation — North Approach Structure",
+      "client": "Bundesamt für Strassen ASTRA",
+      "address": "Industriestrasse 18, 8404 Winterthur",
+      "status": "active",
+      "siteNote": "Security gate closes at 16:00. Last permitted site arrival is 15:45.",
+      "contact": {
+        "name": "Martin Schuler",
+        "phone": "+41 52 555 10 18"
+      }
+    },
+    {
+      "id": "prj-002",
+      "code": "A12-NB-019",
+      "name": "A12 East Viaduct Rehabilitation — North Abutment Structure",
+      "client": "Bundesamt für Strassen ASTRA",
+      "address": "Werkstrasse 4, 8500 Frauenfeld",
+      "status": "active",
+      "siteNote": null,
+      "contact": {
+        "name": "Eva Brunner",
+        "phone": "+41 52 555 10 19"
+      }
+    },
+    {
+      "id": "prj-003",
+      "code": "ZH-BR-204",
+      "name": "Sanierung Limmatbrücke Hardturm / Ersatz der Fahrbahnübergänge und Betoninstandsetzung",
+      "client": "Tiefbauamt Stadt Zürich",
+      "address": "Hardturmstrasse 401, 8005 Zürich",
+      "status": "active",
+      "siteNote": "Access from the south side only. PPE: helmet, vest and safety boots mandatory.",
+      "contact": {
+        "name": "Miriam Huber",
+        "phone": "+41 44 555 20 04"
+      }
+    },
+    {
+      "id": "prj-004",
+      "code": "TG-TUN-77",
+      "name": "Tunnel Frauenfeld Ost — Ventilation and Emergency Power Modernisation",
+      "client": "Kanton Thurgau, Departement für Bau und Umwelt",
+      "address": "Oststrasse 77, 8500 Frauenfeld",
+      "status": "active",
+      "siteNote": "Mobile reception is unreliable inside the tunnel. Site supervisor must be notified before entry.",
+      "contact": {
+        "name": "Patrick Egli",
+        "phone": "+41 58 555 77 00"
+      }
+    },
+    {
+      "id": "prj-005",
+      "code": "SG-RD-311",
+      "name": "Kantonsstrasse 11 — Drainage Renewal, Retaining Wall Repairs and Pedestrian Safety Improvements",
+      "client": "Kanton St. Gallen",
+      "address": "Rorschacher Strasse 311, 9000 St. Gallen",
+      "status": "active",
+      "siteNote": "Traffic control team is available only between 06:30 and 14:30.",
+      "contact": {
+        "name": "Jonas Wild",
+        "phone": null
+      }
+    },
+    {
+      "id": "prj-006",
+      "code": "LU-HOS-42",
+      "name": "Luzern Cantonal Hospital — New Logistics Wing and Underground Service Corridor",
+      "client": "Luzerner Kantonsspital",
+      "address": "Spitalstrasse 42, 6000 Luzern",
+      "status": "active",
+      "siteNote": "Do not enter clinical areas wearing construction PPE.",
+      "contact": {
+        "name": "Sarah Koch",
+        "phone": "+41 41 555 42 42"
+      }
+    },
+    {
+      "id": "prj-007",
+      "code": "BE-RAIL-08",
+      "name": "Bern West Rail Underpass — Waterproofing Remediation",
+      "client": "BLS Netz AG",
+      "address": "Murtenstrasse 198, 3008 Bern",
+      "status": "on_hold",
+      "siteNote": "Project temporarily on hold pending railway possession approval.",
+      "contact": {
+        "name": "Florian Gerber",
+        "phone": "+41 31 555 08 08"
+      }
+    },
+    {
+      "id": "prj-008",
+      "code": "BS-RH-90",
+      "name": "Rhine Quay Flood Protection — Phase 2",
+      "client": "Bau- und Verkehrsdepartement Basel-Stadt",
+      "address": "Uferstrasse 90, 4057 Basel",
+      "status": "completed",
+      "siteNote": null,
+      "contact": {
+        "name": "Lea Wenger",
+        "phone": "+41 61 555 90 90"
+      }
+    }
+  ],
+  "inspections": [
+    {
+      "id": "insp-1001",
+      "projectId": "prj-003",
+      "inspectorId": null,
+      "title": "Critical structural crack review",
+      "type": "structural",
+      "status": "scheduled",
+      "priority": "critical",
+      "startsAt": "2026-08-26T08:00:00+02:00",
+      "endsAt": "2026-08-26T09:00:00+02:00",
+      "notes": "Crack widened from 0.4 mm to approximately 1.1 mm since last site visit. Client requested inspection before morning concrete works continue.",
+      "createdAt": "2026-08-25T16:42:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1002",
+      "projectId": "prj-001",
+      "inspectorId": "ins-001",
+      "title": "Bearing replacement pre-work inspection",
+      "type": "structural",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-08-26T15:30:00+02:00",
+      "endsAt": "2026-08-26T16:30:00+02:00",
+      "notes": "Confirm temporary supports and photograph bearing seats.",
+      "createdAt": "2026-08-20T10:12:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1003",
+      "projectId": "prj-002",
+      "inspectorId": "ins-001",
+      "title": "Abutment reinforcement inspection",
+      "type": "structural",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-08-26T15:45:00+02:00",
+      "endsAt": "2026-08-26T16:45:00+02:00",
+      "notes": "Inspection required before concrete pour.",
+      "createdAt": "2026-08-21T09:05:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1004",
+      "projectId": "prj-004",
+      "inspectorId": "ins-003",
+      "title": "Emergency lighting functional test",
+      "type": "electrical",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-08-27T10:00:00+02:00",
+      "endsAt": "2026-08-27T11:30:00+02:00",
+      "notes": null,
+      "createdAt": "2026-08-18T13:24:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1005",
+      "projectId": "prj-005",
+      "inspectorId": "ins-006",
+      "title": "Drainage trench and bedding inspection",
+      "type": "drainage",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-08-27T14:00:00+02:00",
+      "endsAt": "2026-08-27T15:00:00+02:00",
+      "notes": "Traffic control coordination may be required.",
+      "createdAt": "2026-08-17T14:55:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1006",
+      "projectId": "prj-006",
+      "inspectorId": "ins-004",
+      "title": "Service corridor fire-stopping review",
+      "type": "safety",
+      "status": "scheduled",
+      "priority": "high",
+      "startsAt": "2026-08-28T09:30:00+02:00",
+      "endsAt": "2026-08-28T10:30:00+02:00",
+      "notes": "Several penetrations were incomplete during previous walkthrough.",
+      "createdAt": "2026-08-24T11:20:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1007",
+      "projectId": "prj-001",
+      "inspectorId": "ins-002",
+      "title": "Temporary traffic management review",
+      "type": "safety",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-08-28T16:30:00+02:00",
+      "endsAt": "2026-08-28T17:15:00+02:00",
+      "notes": "Contractor requested late-afternoon slot.",
+      "createdAt": "2026-08-24T15:08:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1008",
+      "projectId": "prj-005",
+      "inspectorId": "ins-002",
+      "title": "Pedestrian diversion safety check",
+      "type": "safety",
+      "status": "scheduled",
+      "priority": "high",
+      "startsAt": "2026-08-29T07:00:00+02:00",
+      "endsAt": "2026-08-29T07:45:00+02:00",
+      "notes": "",
+      "createdAt": "2026-08-22T08:13:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1009",
+      "projectId": "prj-003",
+      "inspectorId": "ins-001",
+      "title": "Concrete repair acceptance",
+      "type": "concrete",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-08-31T13:00:00+02:00",
+      "endsAt": "2026-08-31T14:00:00+02:00",
+      "notes": "Review repaired soffit zones B4–B7.",
+      "createdAt": "2026-08-19T16:37:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1010",
+      "projectId": "prj-004",
+      "inspectorId": "ins-003",
+      "title": "Ventilation controls commissioning",
+      "type": "electrical",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-01T09:00:00+02:00",
+      "endsAt": "2026-09-01T12:00:00+02:00",
+      "notes": "Coordinate with controls subcontractor before arrival.",
+      "createdAt": "2026-08-15T09:45:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1011",
+      "projectId": "prj-006",
+      "inspectorId": "ins-004",
+      "title": "Facade interface inspection",
+      "type": "facade",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-02T14:00:00+02:00",
+      "endsAt": "2026-09-02T15:30:00+02:00",
+      "notes": "Architect requested photo documentation of interfaces around loading bay.",
+      "createdAt": "2026-08-23T12:12:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1012",
+      "projectId": "prj-003",
+      "inspectorId": "ins-005",
+      "title": "Foundation waterproofing review",
+      "type": "structural",
+      "status": "completed",
+      "priority": "normal",
+      "startsAt": "2026-05-12T09:00:00+02:00",
+      "endsAt": "2026-05-12T10:15:00+02:00",
+      "notes": "Completed. Minor defects recorded in report 24-118.",
+      "createdAt": "2026-05-05T10:00:00+02:00",
+      "completedAt": "2026-05-12T10:08:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1013",
+      "projectId": "prj-008",
+      "inspectorId": "ins-005",
+      "title": "Final concrete surface acceptance",
+      "type": "concrete",
+      "status": "completed",
+      "priority": "normal",
+      "startsAt": "2026-04-22T13:30:00+02:00",
+      "endsAt": "2026-04-22T14:30:00+02:00",
+      "notes": "Final acceptance completed.",
+      "createdAt": "2026-04-14T09:10:00+02:00",
+      "completedAt": "2026-04-22T14:26:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1014",
+      "projectId": "prj-003",
+      "inspectorId": "ins-002",
+      "title": "Night work traffic closure inspection",
+      "type": "safety",
+      "status": "cancelled",
+      "priority": "normal",
+      "startsAt": "2026-08-23T22:00:00+02:00",
+      "endsAt": "2026-08-23T23:00:00+02:00",
+      "notes": "Original night closure was postponed.",
+      "createdAt": "2026-08-15T15:00:00+02:00",
+      "cancelledAt": "2026-08-22T11:45:00+02:00",
+      "cancellationReason": "Rail possession moved to a later date."
+    },
+    {
+      "id": "insp-1015",
+      "projectId": "prj-007",
+      "inspectorId": "ins-006",
+      "title": "Waterproofing substrate inspection",
+      "type": "environmental",
+      "status": "cancelled",
+      "priority": "normal",
+      "startsAt": "2026-08-27T08:00:00+02:00",
+      "endsAt": "2026-08-27T09:00:00+02:00",
+      "notes": null,
+      "createdAt": "2026-08-12T10:38:00+02:00",
+      "cancelledAt": "2026-08-24T16:20:00+02:00",
+      "cancellationReason": "Project placed on hold by client."
+    },
+    {
+      "id": "insp-1016",
+      "projectId": "prj-001",
+      "inspectorId": "ins-001",
+      "title": "Expansion joint dimensional survey",
+      "type": "structural",
+      "status": "completed",
+      "priority": "normal",
+      "startsAt": "2026-08-18T11:00:00+02:00",
+      "endsAt": "2026-08-18T12:00:00+02:00",
+      "notes": "Measurements uploaded to project records.",
+      "createdAt": "2026-08-10T09:00:00+02:00",
+      "completedAt": "2026-08-18T11:52:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1017",
+      "projectId": "prj-005",
+      "inspectorId": null,
+      "title": "Retaining wall excavation hold-point",
+      "type": "structural",
+      "status": "scheduled",
+      "priority": "high",
+      "startsAt": "2026-09-03T08:30:00+02:00",
+      "endsAt": "2026-09-03T09:15:00+02:00",
+      "notes": "Contractor cannot proceed with reinforcement until inspection is complete.",
+      "createdAt": "2026-08-25T14:02:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1018",
+      "projectId": "prj-002",
+      "inspectorId": "ins-004",
+      "title": "Formwork geometry review",
+      "type": "structural",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-03T10:00:00+02:00",
+      "endsAt": "2026-09-03T11:00:00+02:00",
+      "notes": "Check bearing seat elevations before pour.",
+      "createdAt": "2026-08-25T09:21:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1019",
+      "projectId": "prj-006",
+      "inspectorId": "ins-003",
+      "title": "Temporary electrical distribution inspection",
+      "type": "electrical",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-04T07:30:00+02:00",
+      "endsAt": "2026-09-04T08:30:00+02:00",
+      "notes": "Coordinate access with hospital logistics desk.",
+      "createdAt": "2026-08-20T07:50:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1020",
+      "projectId": "prj-004",
+      "inspectorId": "ins-003",
+      "title": "Cable tray fire-separation review",
+      "type": "electrical",
+      "status": "completed",
+      "priority": "normal",
+      "startsAt": "2026-08-11T10:00:00+02:00",
+      "endsAt": "2026-08-11T11:00:00+02:00",
+      "notes": null,
+      "createdAt": "2026-08-04T13:12:00+02:00",
+      "completedAt": "2026-08-11T10:48:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1021",
+      "projectId": "prj-003",
+      "inspectorId": "ins-001",
+      "title": "Rebar cover spot check",
+      "type": "concrete",
+      "status": "completed",
+      "priority": "normal",
+      "startsAt": "2026-08-24T08:00:00+02:00",
+      "endsAt": "2026-08-24T08:45:00+02:00",
+      "notes": "No significant deviations.",
+      "createdAt": "2026-08-18T10:14:00+02:00",
+      "completedAt": "2026-08-24T08:42:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1022",
+      "projectId": "prj-001",
+      "inspectorId": "ins-002",
+      "title": "Scaffold access safety review",
+      "type": "safety",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-07T13:00:00+02:00",
+      "endsAt": "2026-09-07T13:45:00+02:00",
+      "notes": null,
+      "createdAt": "2026-08-25T08:12:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1023",
+      "projectId": "prj-005",
+      "inspectorId": "ins-006",
+      "title": "Oil separator installation inspection",
+      "type": "environmental",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-08T11:00:00+02:00",
+      "endsAt": "2026-09-08T12:00:00+02:00",
+      "notes": "Check invert levels against approved drainage plan.",
+      "createdAt": "2026-08-21T16:44:00+02:00",
+      "cancellationReason": null
+    },
+    {
+      "id": "insp-1024",
+      "projectId": "prj-003",
+      "inspectorId": "ins-004",
+      "title": "Bridge parapet fixing review",
+      "type": "facade",
+      "status": "scheduled",
+      "priority": "normal",
+      "startsAt": "2026-09-09T09:00:00+02:00",
+      "endsAt": "2026-09-09T10:00:00+02:00",
+      "notes": "Check first completed 20 m section before remaining installation proceeds.",
+      "createdAt": "2026-08-23T17:02:00+02:00",
+      "cancellationReason": null
+    }
+  ]
+}
