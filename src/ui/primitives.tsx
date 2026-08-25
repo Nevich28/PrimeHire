@@ -187,6 +187,7 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ disabled: disabled || busy }}
       disabled={disabled || busy}
       onPress={onPress}
@@ -294,6 +295,7 @@ export function Chip({
   return (
     <Pressable
       accessibilityRole="tab"
+      accessibilityLabel={count === undefined ? label : `${label}, ${count}`}
       accessibilityState={{ selected }}
       onPress={onPress}
       style={({ hovered }: { hovered?: boolean }) => [

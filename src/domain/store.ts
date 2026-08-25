@@ -6,9 +6,10 @@
  * inspectors are reference data and are read straight from the seed.
  *
  * Actions are named after what an operations coordinator is doing — schedule,
- * reschedule, reassign, cancel, complete — rather than after generic CRUD. That
- * keeps intent visible at the call site and keeps the audit fields (cancelledAt,
- * completedAt, cancellationReason) impossible to forget.
+ * reschedule, reassign, cancel, complete — rather than after generic CRUD, and
+ * each one delegates to a pure function in `inspection-changes.ts`. That keeps
+ * this file down to subscription and storage, and keeps the rules about what a
+ * cancellation does to a record testable on their own.
  *
  * This started on Zustand and no longer needs it. Zustand ships `import.meta`
  * in its middleware, which Metro does not transform for the web target on this
@@ -22,20 +23,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSyncExternalStore } from 'react';
 
 import { now } from './clock.ts';
-import { toZurichIso } from './datetime.ts';
+import * as changes from './inspection-changes.ts';
+import type { InspectionDraft } from './inspection-changes.ts';
 import { SEED_INSPECTIONS } from './seed.ts';
-import type { Inspection, InspectionType, Priority } from './types.ts';
+import type { Inspection } from './types.ts';
 
-export type InspectionDraft = {
-  projectId: string;
-  inspectorId: string | null;
-  title: string;
-  type: InspectionType;
-  priority: Priority;
-  startsAt: string;
-  endsAt: string;
-  notes: string | null;
-};
+export type { InspectionDraft };
 
 export type InspectionState = {
   inspections: Inspection[];
@@ -54,43 +47,13 @@ export type InspectionState = {
 
 const STORAGE_KEY = 'site-inspections/v1';
 
-/**
- * Ids continue the sequence already present in the data (`insp-1024` and up)
- * instead of using random uuids: it keeps the dataset readable, keeps new
- * records sortable by age, and avoids a dependency for something this small.
- */
-function nextInspectionId(existing: Inspection[]): string {
-  const highest = existing.reduce((max, inspection) => {
-    const match = /^insp-(\d+)$/.exec(inspection.id);
-    return match ? Math.max(max, Number(match[1])) : max;
-  }, 1000);
-  return `insp-${highest + 1}`;
-}
-
-function applyDraft(inspection: Inspection, draft: InspectionDraft): Inspection {
-  return {
-    ...inspection,
-    projectId: draft.projectId,
-    inspectorId: draft.inspectorId,
-    title: draft.title.trim(),
-    type: draft.type,
-    priority: draft.priority,
-    startsAt: draft.startsAt,
-    endsAt: draft.endsAt,
-    notes: draft.notes?.trim() ? draft.notes.trim() : null,
-  };
-}
-
-/* ----------------------------------------------------------------- store -- */
-
 const listeners = new Set<() => void>();
-let state: InspectionState = createInitialState();
 
 function notify() {
   for (const listener of listeners) listener();
 }
 
-/** Replaces the inspection list and persists it. Actions go through here. */
+/** Replaces the inspection list and persists it. Every action goes through here. */
 function setInspections(next: Inspection[]) {
   state = { ...state, inspections: next };
   notify();
@@ -103,70 +66,36 @@ function mapInspection(id: string, change: (inspection: Inspection) => Inspectio
   );
 }
 
-function createInitialState(): InspectionState {
-  return {
-    inspections: [...SEED_INSPECTIONS],
-    hydrated: false,
+let state: InspectionState = {
+  inspections: [...SEED_INSPECTIONS],
+  hydrated: false,
 
-    scheduleInspection: (draft) => {
-      const id = nextInspectionId(state.inspections);
-      const inspection = applyDraft(
-        {
-          id,
-          projectId: draft.projectId,
-          inspectorId: draft.inspectorId,
-          title: draft.title,
-          type: draft.type,
-          status: 'scheduled',
-          priority: draft.priority,
-          startsAt: draft.startsAt,
-          endsAt: draft.endsAt,
-          notes: draft.notes,
-          createdAt: toZurichIso(now()),
-          cancellationReason: null,
-        },
-        draft
-      );
-      setInspections([...state.inspections, inspection]);
-      return id;
-    },
+  scheduleInspection: (draft) => {
+    const inspection = changes.createInspection(draft, state.inspections, now());
+    setInspections([...state.inspections, inspection]);
+    return inspection.id;
+  },
 
-    updateInspection: (id, draft) => {
-      mapInspection(id, (inspection) => applyDraft(inspection, draft));
-    },
+  updateInspection: (id, draft) => {
+    mapInspection(id, (inspection) => changes.applyDraft(inspection, draft));
+  },
 
-    cancelInspection: (id, reason) => {
-      mapInspection(id, (inspection) => ({
-        ...inspection,
-        status: 'cancelled',
-        cancelledAt: toZurichIso(now()),
-        cancellationReason: reason.trim() || 'No reason given.',
-      }));
-    },
+  cancelInspection: (id, reason) => {
+    mapInspection(id, (inspection) => changes.cancelInspection(inspection, reason, now()));
+  },
 
-    completeInspection: (id) => {
-      mapInspection(id, (inspection) => ({
-        ...inspection,
-        status: 'completed',
-        completedAt: toZurichIso(now()),
-      }));
-    },
+  completeInspection: (id) => {
+    mapInspection(id, (inspection) => changes.completeInspection(inspection, now()));
+  },
 
-    reopenInspection: (id) => {
-      mapInspection(id, (inspection) => ({
-        ...inspection,
-        status: 'scheduled',
-        completedAt: null,
-        cancelledAt: null,
-        cancellationReason: null,
-      }));
-    },
+  reopenInspection: (id) => {
+    mapInspection(id, changes.reopenInspection);
+  },
 
-    resetToSeed: () => {
-      setInspections([...SEED_INSPECTIONS]);
-    },
-  };
-}
+  resetToSeed: () => {
+    setInspections([...SEED_INSPECTIONS]);
+  },
+};
 
 /* ----------------------------------------------------------- persistence -- */
 
@@ -214,10 +143,6 @@ function subscribe(listener: () => void): () => void {
   };
 }
 
-function getState(): InspectionState {
-  return state;
-}
-
 /**
  * Selector hook.
  *
@@ -233,4 +158,4 @@ export function useInspectionStore<T>(selector: (state: InspectionState) => T): 
   );
 }
 
-useInspectionStore.getState = getState;
+useInspectionStore.getState = (): InspectionState => state;

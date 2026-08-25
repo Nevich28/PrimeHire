@@ -120,6 +120,8 @@ export function ScheduleShell({
       stickySectionHeadersEnabled
       contentContainerStyle={[
         styles.listContent,
+        // Room at the bottom for the floating action button and, on Android,
+        // for the system navigation bar the app draws behind.
         !isWide && { paddingBottom: insets.bottom + 96 },
       ]}
       showsVerticalScrollIndicator={isWide}
@@ -216,7 +218,10 @@ export function ScheduleShell({
 
   if (!isWide) {
     return (
-      <View style={styles.screen}>
+      // The safe area belongs to the container rather than to the scroll
+      // content: that way the sticky day headings come to rest below the
+      // status bar and notch instead of underneath them.
+      <View style={[styles.screen, { paddingTop: insets.top }]}>
         {list}
         <Pressable
           accessibilityRole="button"
@@ -241,7 +246,9 @@ export function ScheduleShell({
   return (
     <View style={styles.screen}>
       <View style={[styles.wideHeader, { paddingTop: insets.top + spacing.lg }]}>
-        <Header now={now} onOpenInspectors={onOpenInspectors} />
+        <View style={styles.flex}>
+          <Header now={now} onOpenInspectors={onOpenInspectors} />
+        </View>
         <Button label="Schedule inspection" icon="add" onPress={onCreate} />
       </View>
       <View style={styles.wideBody}>
