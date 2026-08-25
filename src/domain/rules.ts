@@ -27,6 +27,7 @@ import {
   zurichDayKey,
 } from './datetime.ts';
 import { minutesOfDay, siteAccessFor } from './site-access.ts';
+import { townOf, travelMinutesBetween } from './travel.ts';
 import type { Inspection, Inspector, Project } from './types.ts';
 
 export type IssueSeverity = 'blocker' | 'warning' | 'info';
@@ -60,14 +61,6 @@ export type RuleContext = {
   now: number;
 };
 
-/**
- * How long an inspector realistically needs between two different sites.
- * The dataset has no coordinates, so a flat buffer is the honest approximation:
- * these are cantonal projects spread across eastern Switzerland, and 45 minutes
- * is a conservative floor rather than a routing estimate.
- */
-export const TRAVEL_BUFFER_MINUTES = 45;
-
 const SEVERITY_RANK: Record<IssueSeverity, number> = { blocker: 0, warning: 1, info: 2 };
 
 /** `facade` and `facades` are the same discipline; the data uses both forms. */
@@ -79,12 +72,6 @@ function normaliseDiscipline(value: string): string {
 function timeOfDayMinutes(instant: number): number {
   const parts = toZurichParts(instant);
   return parts.hour * 60 + parts.minute;
-}
-
-/** Last segment of a Swiss address is the town, which is what people say aloud. */
-function townOf(address: string): string {
-  const tail = address.split(',').pop()?.trim() ?? '';
-  return tail.replace(/^\d{4}\s+/, '') || 'another site';
 }
 
 /**
@@ -184,8 +171,10 @@ export function evaluateInspection(candidate: Inspection, context: RuleContext):
         continue;
       }
 
-      // Two different sites on the same day with no time to travel between them.
+      // Two different sites on the same day, with less time between them than
+      // the drive actually takes.
       if (
+        project &&
         otherProject &&
         otherProject.id !== candidate.projectId &&
         zurichDayKey(otherStart) === zurichDayKey(start)
@@ -194,14 +183,16 @@ export function evaluateInspection(candidate: Inspection, context: RuleContext):
           otherStart >= end
             ? Math.round((otherStart - end) / 60_000)
             : Math.round((start - otherEnd) / 60_000);
-        if (gapMinutes < TRAVEL_BUFFER_MINUTES) {
+        const travelMinutes = travelMinutesBetween(project, otherProject);
+
+        if (travelMinutes !== null && gapMinutes < travelMinutes) {
           add({
             code: 'tight_travel',
             severity: 'warning',
             label: 'Tight travel',
             message:
-              `Only ${gapMinutes} min between this and ${otherCode} ` +
-              `in ${townOf(otherProject.address)}.`,
+              `Only ${gapMinutes} min between this and ${otherCode} in ` +
+              `${townOf(otherProject)}, and that journey takes about ${travelMinutes} min.`,
             relatedInspectionId: other.id,
           });
         }

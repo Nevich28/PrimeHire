@@ -9,7 +9,7 @@ Press `w` for the browser, or scan the QR code with Expo Go. The project targets
 **Expo SDK 54**, which is the version the Expo Go in the app stores supports.
 
 ```bash
-npm test          # 36 unit tests, on Node's built-in test runner
+npm test          # 38 unit tests, on Node's built-in test runner
 npm run typecheck
 ```
 

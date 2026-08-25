@@ -171,7 +171,66 @@ test('back-to-back work on two different sites warns about travel time', () => {
   const travel = evaluateInspection(draft, context).find((i) => i.code === 'tight_travel');
   assert.ok(travel, 'expected a travel warning between Frauenfeld and St. Gallen');
   assert.match(travel!.message, /Only 30 min/);
+  assert.match(travel!.message, /journey takes about 55 min/);
   assert.equal(travel!.relatedInspectionId, 'insp-1004');
+});
+
+test('two sites in the same town do not need an hour between them', () => {
+  // Werkstrasse 4 and Oststrasse 77 are both in Frauenfeld. A twenty minute gap
+  // is fine, and a flat buffer would have complained about it.
+  const draft: Inspection = {
+    id: 'draft-same-town',
+    projectId: 'prj-002', // Frauenfeld
+    inspectorId: 'ins-003', // Sofia Rossi, in Frauenfeld until 11:30 that day
+    title: 'Draft same-town check',
+    type: 'structural',
+    status: 'scheduled',
+    priority: 'normal',
+    startsAt: '2026-08-27T11:50:00+02:00',
+    endsAt: '2026-08-27T12:30:00+02:00',
+    notes: null,
+    createdAt: '2026-08-25T17:00:00+02:00',
+    cancellationReason: null,
+  };
+
+  const codes = evaluateInspection(draft, context).map((issue) => issue.code);
+  assert.ok(!codes.includes('tight_travel'), 'twenty minutes is enough to cross one town');
+});
+
+test('an hour and a half is not enough to cross the country', () => {
+  // Basel to St. Gallen is most of a morning. A flat buffer of under an hour
+  // would have said nothing at all about this.
+  const draft: Inspection = {
+    id: 'draft-cross-country',
+    projectId: 'prj-005', // St. Gallen
+    inspectorId: 'ins-002',
+    title: 'Draft cross-country check',
+    type: 'safety',
+    status: 'scheduled',
+    priority: 'normal',
+    startsAt: '2026-09-10T11:00:00+02:00',
+    endsAt: '2026-09-10T12:00:00+02:00',
+    notes: null,
+    createdAt: '2026-08-25T17:00:00+02:00',
+    cancellationReason: null,
+  };
+
+  const inBasel: Inspection = {
+    ...draft,
+    id: 'draft-basel',
+    projectId: 'prj-008', // Basel
+    startsAt: '2026-09-10T08:30:00+02:00',
+    endsAt: '2026-09-10T09:30:00+02:00',
+  };
+
+  const travel = evaluateInspection(draft, {
+    ...context,
+    inspections: [...data.inspections, inBasel],
+  }).find((issue) => issue.code === 'tight_travel');
+
+  assert.ok(travel, 'expected a warning: ninety minutes does not cover Basel to St. Gallen');
+  assert.match(travel!.message, /Only 90 min/);
+  assert.match(travel!.message, /takes about 135 min/);
 });
 
 test('a two-sided clash is one problem in the feed, but flagged on both cards', () => {
