@@ -51,7 +51,7 @@ import {
 import { disciplineIcon, severityPresentation, titleCase } from '@/ui/presentation';
 import { colors, CONTENT_MAX_WIDTH, radius, spacing } from '@/ui/theme';
 
-import { DatePicker, parseTimeInput, TimeInput } from './DatePicker';
+import { DatePicker, parseTimeInput, TimeField } from './DatePicker';
 import { InspectorPicker } from './InspectorPicker';
 import { ProjectPicker } from './ProjectPicker';
 
@@ -175,10 +175,11 @@ export function InspectionForm({
     [draft, projectId, schedule.context]
   );
 
+  // The time is chosen from a picker now, so it cannot be malformed; only the
+  // two fields a person types into can be wrong.
   const errors = {
     project: !projectId ? 'Choose the project this inspection belongs to.' : undefined,
     title: !title.trim() ? 'Give the inspection a title the site team will recognise.' : undefined,
-    time: !parsedTime ? 'Enter a time between 00:00 and 23:59.' : undefined,
   };
   const hasErrors = Object.values(errors).some(Boolean);
 
@@ -311,14 +312,9 @@ export function InspectionForm({
           <DatePicker value={day} now={schedule.now} onChange={setDay} />
         </Field>
 
-        <View style={styles.timeRow} onLayout={recordOffset('time')}>
-          <Field label="Start time" error={submitted ? errors.time : undefined}>
-            <TimeInput
-              value={time}
-              onChange={setTime}
-              invalid={submitted && Boolean(errors.time)}
-              onFocus={revealField('time')}
-            />
+        <View style={styles.timeRow}>
+          <Field label="Start time">
+            <TimeField value={time} onChange={setTime} access={access} />
           </Field>
 
           <Field label="Duration">

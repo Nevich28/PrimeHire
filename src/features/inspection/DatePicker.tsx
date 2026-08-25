@@ -4,9 +4,9 @@
  * Deliberately hand-built rather than platform pickers. The community date/time
  * picker renders as a native dialog on iOS and Android and falls apart on the
  * web, which would mean two different interactions in a product whose whole
- * point is that it is the same tool on both. A month grid and a typed time are
- * identical everywhere, work with a keyboard, and never depend on a native
- * module being present in Expo Go.
+ * point is that it is the same tool on both. A month grid and a pair of hour
+ * and minute grids behave identically everywhere, work with a keyboard, and
+ * never depend on a native module being present in Expo Go.
  *
  * Weeks start on Monday, as they do in Switzerland.
  */
@@ -22,7 +22,10 @@ import {
   toZurichParts,
   zurichDayKey,
 } from '@/domain/datetime';
-import { AppText, Input, type PressableState } from '@/ui/primitives';
+import { minutesOfDay } from '@/domain/site-access';
+import type { SiteAccessWindow } from '@/domain/site-access';
+import { AppText, Button, Field, type PressableState } from '@/ui/primitives';
+import { Sheet } from '@/ui/Sheet';
 import { colors, radius, spacing } from '@/ui/theme';
 
 const WEEKDAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
@@ -150,36 +153,143 @@ export function DatePicker({
   );
 }
 
+const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+const MINUTES = [0, 15, 30, 45];
+
+const pad2 = (value: number) => String(value).padStart(2, '0');
+
 /**
- * A typed 24-hour time.
+ * Picking a start time.
  *
- * Accepts `8`, `800`, `8:00` and `08:00` and normalises on every keystroke that
- * produces something valid, so the field never blocks typing but also never
- * lets an impossible time reach the domain.
+ * This was a text field, and typing a time on a phone is the worst of both
+ * worlds: it summons the numeric keyboard over the form, and it accepts
+ * half-finished input — a lone "0" reads as midnight and the summary line
+ * cheerfully agrees.
+ *
+ * Choosing an hour and then a quarter is two taps, needs no keyboard, and
+ * cannot produce a time that does not exist. Site work runs on quarter hours,
+ * so the granularity is the real one rather than an arbitrary restriction.
+ *
+ * Hours the site cannot be entered are marked rather than removed — the same
+ * stance the rest of the product takes about warnings.
  */
-export function TimeInput({
+export function TimeField({
   value,
   onChange,
-  invalid,
-  onFocus,
+  access,
 }: {
   /** `HH:MM`. */
   value: string;
   onChange: (next: string) => void;
-  invalid?: boolean;
-  onFocus?: () => void;
+  /** Used to mark hours outside the site's access window. */
+  access?: SiteAccessWindow | null;
 }) {
+  const [open, setOpen] = useState(false);
+  const parsed = parseTimeInput(value) ?? { hour: 8, minute: 0 };
+
+  const opens = access?.opensAt ? minutesOfDay(access.opensAt) : null;
+  const closes = access?.closesAt ? minutesOfDay(access.closesAt) : null;
+
+  const outsideWindow = (hour: number) => {
+    const atHour = hour * 60;
+    if (opens !== null && atHour < opens) return true;
+    if (closes !== null && atHour >= closes) return true;
+    return false;
+  };
+
+  const apply = (hour: number, minute: number) => onChange(`${pad2(hour)}:${pad2(minute)}`);
+
   return (
-    <Input
-      value={value}
-      onChangeText={(next) => onChange(next.replace(/[^\d:]/g, '').slice(0, 5))}
-      placeholder="08:00"
-      keyboardType="number-pad"
-      invalid={invalid}
-      maxLength={5}
-      onFocus={onFocus}
-      style={styles.timeInput}
-    />
+    <>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Start time ${value}. Change it`}
+        onPress={() => setOpen(true)}
+        style={({ hovered }: PressableState) => [
+          styles.timeField,
+          hovered && { borderColor: colors.borderStrong },
+        ]}
+      >
+        <AppText variant="bodyStrong" mono>
+          {value}
+        </AppText>
+        <Ionicons name="time-outline" size={18} color={colors.textMuted} />
+      </Pressable>
+
+      <Sheet
+        visible={open}
+        onClose={() => setOpen(false)}
+        title="Start time"
+        subtitle={
+          access ? `This site: ${access.reason}.` : 'Site work runs on quarter hours.'
+        }
+        footer={<Button label="Done" onPress={() => setOpen(false)} />}
+      >
+        <Field label="Hour">
+          <View style={styles.timeGrid}>
+            {HOURS.map((hour) => {
+              const selected = hour === parsed.hour;
+              const marked = outsideWindow(hour);
+              return (
+                <Pressable
+                  key={hour}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${pad2(hour)} hundred${marked ? ', outside the site access window' : ''}`}
+                  accessibilityState={{ selected }}
+                  onPress={() => apply(hour, parsed.minute)}
+                  style={({ hovered }: PressableState) => [
+                    styles.timeCell,
+                    marked && styles.timeCellMarked,
+                    selected && styles.timeCellSelected,
+                    !selected && hovered && { borderColor: colors.borderStrong },
+                  ]}
+                >
+                  <AppText
+                    variant="label"
+                    mono
+                    color={
+                      selected ? colors.textInverse : marked ? colors.textMuted : colors.text
+                    }
+                  >
+                    {pad2(hour)}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Field>
+
+        <Field label="Minutes">
+          <View style={styles.minuteRow}>
+            {MINUTES.map((minute) => {
+              const selected = minute === parsed.minute;
+              return (
+                <Pressable
+                  key={minute}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${minute} minutes past`}
+                  accessibilityState={{ selected }}
+                  onPress={() => apply(parsed.hour, minute)}
+                  style={({ hovered }: PressableState) => [
+                    styles.minuteCell,
+                    selected && styles.timeCellSelected,
+                    !selected && hovered && { borderColor: colors.borderStrong },
+                  ]}
+                >
+                  <AppText
+                    variant="label"
+                    mono
+                    color={selected ? colors.textInverse : colors.text}
+                  >
+                    :{pad2(minute)}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Field>
+      </Sheet>
+    </>
   );
 }
 
@@ -230,5 +340,41 @@ const styles = StyleSheet.create({
   },
   weekdayText: { width: `${100 / 7}%`, textAlign: 'center', paddingVertical: 2 },
   cellText: { textAlign: 'center' },
-  timeInput: { maxWidth: 120, fontVariant: ['tabular-nums'] },
+  timeField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    minHeight: 48,
+    maxWidth: 160,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+  },
+  timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  timeCell: {
+    width: 52,
+    height: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  timeCellMarked: { backgroundColor: colors.surfaceMuted, borderColor: colors.border },
+  timeCellSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  minuteRow: { flexDirection: 'row', gap: spacing.sm },
+  minuteCell: {
+    flex: 1,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
 });
