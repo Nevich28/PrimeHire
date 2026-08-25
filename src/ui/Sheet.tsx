@@ -41,12 +41,16 @@ export function Sheet({
   const insets = useSafeAreaInsets();
 
   /**
-   * A modal is its own window, so the resizing the operating system does for the
-   * screen underneath does not reach it: the cancellation reason would sit
-   * behind the keyboard the moment you started typing it. Tracking the keyboard
-   * and lifting the sheet by that much keeps the field and its buttons visible.
+   * Making room for the keyboard, on the one platform that needs it.
+   *
+   * Android resizes the dialog window itself, so the sheet is already sitting in
+   * a shorter space — lifting it again on top of that pins it to the top of the
+   * screen with a band of nothing between it and the keyboard. iOS leaves the
+   * modal at full height and lets the keyboard cover it, so there the sheet has
+   * to be raised by hand.
    */
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardInset = Platform.OS === 'ios' ? keyboardHeight : 0;
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -87,11 +91,10 @@ export function Sheet({
     >
       {/*
         The keyboard shortens the space the sheet may occupy rather than being
-        padded for inside it. Padding the sheet itself was the first attempt and
-        it collapsed the body: a tall keyboard consumed the whole surface and
-        left the buttons sitting under the title.
+        padded for inside it. Padding the sheet itself collapsed the body: a tall
+        keyboard consumed the whole surface and left the buttons under the title.
       */}
-      <View style={[styles.backdrop, { paddingBottom: keyboardHeight }]}>
+      <View style={[styles.backdrop, { paddingBottom: keyboardInset }]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close"

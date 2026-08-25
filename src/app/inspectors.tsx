@@ -71,29 +71,38 @@ export default function InspectorsRoute() {
                     <Pressable
                       key={item.inspection.id}
                       accessibilityRole="button"
+                      accessibilityLabel={`${item.inspection.title}, ${item.project.code}, ${formatDayHeading(item.start, schedule.now)} ${formatTimeRange(item.start, item.end)}`}
                       onPress={() =>
                         router.navigate({
                           pathname: '/inspection/[id]',
                           params: { id: item.inspection.id },
                         })
                       }
-                      style={({ hovered }: PressableState) => [
+                      style={({ hovered, pressed }: PressableState) => [
                         styles.row,
-                        hovered && { backgroundColor: colors.surfaceMuted },
+                        (hovered || pressed) && { backgroundColor: colors.surfaceMuted },
                       ]}
                     >
-                      <AppText variant="caption" mono color={colors.textSecondary}>
-                        {formatDayHeading(item.start, schedule.now)}
-                      </AppText>
-                      <AppText variant="caption" mono color={colors.textMuted}>
-                        {formatTimeRange(item.start, item.end)}
-                      </AppText>
-                      <AppText variant="caption" numberOfLines={1} style={styles.flex}>
-                        {item.project.code} · {item.inspection.title}
-                      </AppText>
-                      {clashing ? (
-                        <Ionicons name="alert-circle" size={14} color={colors.blocker} />
-                      ) : null}
+                      <View style={styles.rowBody}>
+                        <View style={styles.rowWhen}>
+                          <AppText variant="caption" mono color={colors.textSecondary}>
+                            {formatDayHeading(item.start, schedule.now)}
+                          </AppText>
+                          <AppText variant="caption" mono color={colors.textMuted}>
+                            {formatTimeRange(item.start, item.end)}
+                          </AppText>
+                          {clashing ? (
+                            <Ionicons name="alert-circle" size={13} color={colors.blocker} />
+                          ) : null}
+                        </View>
+                        <AppText variant="caption" numberOfLines={1}>
+                          {item.project.code} · {item.inspection.title}
+                        </AppText>
+                      </View>
+
+                      {/* The row opens the inspection. On a phone there is no
+                          hover to hint at that, so it says so with a chevron. */}
+                      <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
                     </Pressable>
                   );
                 })
@@ -169,7 +178,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+  rowBody: { flex: 1, gap: 2 },
+  rowWhen: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   sectionLabel: { marginTop: spacing.md },
 });
