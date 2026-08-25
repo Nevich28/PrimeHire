@@ -85,7 +85,13 @@ export function Sheet({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={styles.backdrop}>
+      {/*
+        The keyboard shortens the space the sheet may occupy rather than being
+        padded for inside it. Padding the sheet itself was the first attempt and
+        it collapsed the body: a tall keyboard consumed the whole surface and
+        left the buttons sitting under the title.
+      */}
+      <View style={[styles.backdrop, { paddingBottom: keyboardHeight }]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close"
@@ -97,10 +103,9 @@ export function Sheet({
           style={[
             isWide ? styles.dialog : styles.sheet,
             elevation.raised,
-            !isWide && {
-              paddingBottom: (keyboardHeight || insets.bottom) + spacing.lg,
-              maxHeight: keyboardHeight > 0 ? '100%' : '92%',
-            },
+            // The home indicator only needs clearing when the keyboard is not
+            // already covering that edge.
+            !isWide && { paddingBottom: (keyboardHeight > 0 ? 0 : insets.bottom) + spacing.lg },
           ]}
         >
           {!isWide ? <View style={styles.grabber} /> : null}
@@ -118,6 +123,7 @@ export function Sheet({
           </View>
 
           <ScrollView
+            style={styles.scroll}
             contentContainerStyle={styles.body}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -171,6 +177,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   headerText: { flex: 1, gap: 2 },
+  // Lets the body give way to the header and footer instead of overflowing.
+  scroll: { flexShrink: 1 },
   body: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, gap: spacing.md },
   footer: {
     flexDirection: 'row',
