@@ -11,7 +11,7 @@ Press `w` for the browser, or scan the QR code with Expo Go. The project targets
 **Expo SDK 54**, which is what the Expo Go currently in the app stores supports.
 
 ```bash
-npm test        # 28 unit tests, Node's built-in runner, no extra dependencies
+npm test        # 35 unit tests, Node's built-in runner, no extra dependencies
 npm run typecheck
 ```
 
@@ -22,7 +22,7 @@ projects, inspectors and inspections.
 
 ## The three most important decisions
 
-### 1. The product leads with what is wrong, not with a list
+### 1. The product leads with what is wrong, and offers to fix it
 
 The client already has a list of inspections — that is what the spreadsheet is.
 What they cannot get from a spreadsheet is the answer to *"what is about to go
@@ -35,14 +35,24 @@ with nobody assigned. An inspection on the A12 runs until 16:30 at a site whose
 security gate closes at 16:00. A drainage inspection in St. Gallen runs half an
 hour past the time the traffic control team goes home.
 
-Every one of those is a phone call the product should have prevented.
+Finding those is half of it. Most of them have exactly one sensible resolution
+and the product already knows what it is — who is free and signed off for that
+slot, which hour of the day fits inside a site's access window — so the fix sits
+on the row as one tap, with an undo behind it.
+
+A suggestion is only offered when it survives the same rules engine that raised
+the problem: it must clear the issue it targets and must not introduce a
+blocker. Moving the 15:30 bearing inspection earlier is therefore *not* offered,
+because Anna Keller would still be double booked that afternoon. The product
+stays quiet rather than pretending to have fixed something.
 
 ### 2. Site notes are rules, not decoration
 
 `data.json` carries site access constraints as prose inside `project.siteNote`:
 *"Security gate closes at 16:00. Last permitted site arrival is 15:45."* Shown
 as grey text on a card, that is a nice touch. Modelled as a rule, it stops
-somebody being sent to a locked gate.
+somebody being sent to a locked gate — and it is what lets the product suggest
+15:15–16:00 instead.
 
 Those windows are transcribed into `src/domain/site-access.ts` as structured
 data, and the original note is still shown verbatim next to it. Parsing the
@@ -59,10 +69,12 @@ outside their discipline — because they sometimes know something the data does
 not. What they cannot do is *not notice*: the consequence is spelled out in a
 sentence, in the form, before they commit.
 
-The same rule applies to cancellation, which is never a delete. The record stays
-and the reason is required, because the delivered dataset works that way and
-because that sentence is what stops the next person ringing round to ask what
-happened.
+The same thinking runs through the rest. Cancellation is never a delete — the
+record stays and the reason is required, because the delivered dataset works
+that way and because that sentence is what stops the next person ringing round
+to ask what happened. And every change to an existing inspection leaves an undo
+behind for a few seconds, because all of this happens quickly, often on a phone,
+often on the wrong row.
 
 ---
 
@@ -84,6 +96,9 @@ happened.
   routing estimate, and it is one constant in `src/domain/rules.ts`.
 - **`facade` and `facades` are the same discipline.** The data uses the singular
   for inspection types and the plural for inspector specialties.
+- **Later is better than earlier when a slot has to move.** Work on site tends
+  to run on, so a suggested reschedule takes the latest hour that fits the
+  access window rather than pulling the visit forward more than necessary.
 - **Swiss conventions**: 24-hour clock, weeks starting on Monday, project codes
   shown everywhere because two projects are called "A12 East Viaduct
   Rehabilitation — North Approach/Abutment Structure" and only the code tells
@@ -95,18 +110,18 @@ happened.
 
 - **Authentication, roles and multi-user anything.** There is no backend, and a
   fake login would only add screens.
-- **Dark mode.** One light theme executed properly beats two half-finished ones.
+- **Dark mode.** One light theme executed properly beats two half-finished ones,
+  and it would double the visual QA surface for no gain to a dispatcher.
 - **Managing projects and inspectors.** Reference data stays read-only; the
   inspector screen shows workload rather than offering edits.
 - **Notifications, offline sync, reporting, exports, attachments, recurring
   inspections, drag-to-reschedule.** All plausible, none of them the difference
   between this being useful on Monday morning and not.
-- **A custom app icon and splash artwork.** The template artwork is gone and the
-  splash is a plain brand colour; producing real icon assets was not the best
-  use of the time budget.
-- **Component tests.** The domain layer is covered by 28 unit tests; the UI was
-  verified by hand on web, iOS and Android. A rendering test setup would have
-  cost more than it returned at this size.
+- **A custom app icon.** The template artwork is gone and the splash is a plain
+  brand colour; producing real icon assets was not the best use of the time.
+- **Component tests.** The domain layer is covered by 35 unit tests and every
+  flow was exercised by hand on web, iOS and Android. A rendering test setup
+  would have cost more than it returned at this size.
 
 ---
 
@@ -138,15 +153,23 @@ fail. I replaced it with an explicit table of access windows transcribed from th
 notes, documented as the field this would be in a real system, with the original
 note still shown verbatim beside it.
 
-There were two smaller corrections worth recording. The generated store used
-Zustand, which ships `import.meta` in its middleware; Metro does not transform
-that for the web target on SDK 54, so the web bundle threw before the first
-frame. Rather than add resolver configuration to work around a library, I removed
-the dependency — the store is one collection and five actions, which is about
-eighty lines of `useSyncExternalStore`. And the responsive layout was built on
-`useWindowDimensions`, which did not re-emit on web window resize, leaving the
-layout stuck on whichever side of the breakpoint it started on; it now measures
-the app container with `onLayout`, which is correct on both targets.
+Three smaller corrections are worth recording, because each one traded a
+plausible-looking answer for a duller correct one:
+
+- The generated store used Zustand, which ships `import.meta` in its middleware;
+  Metro does not transform that for the web target on SDK 54, so the web bundle
+  threw before the first frame. Rather than add resolver configuration to work
+  around a library, I removed the dependency — the store is one collection and
+  five actions, which is about eighty lines of `useSyncExternalStore`.
+- The responsive layout was built on `useWindowDimensions`, which did not
+  re-emit on web window resize, leaving the layout stuck on whichever side of
+  the breakpoint it started on. It now measures the app container with
+  `onLayout`, which is correct on both targets.
+- The keyboard focus ring was drawn from Pressable's `focused` state. That
+  cannot tell a keyboard user from someone who has just clicked, so it lit up
+  after every mouse press. The browser already makes that distinction, so the
+  ring is now the native `:focus-visible` outline, restyled to match the app
+  through a stylesheet that only exists on web.
 
 ---
 
@@ -158,9 +181,10 @@ the app container with `onLayout`, which is correct on both targets.
   The tests round-trip all 60-odd timestamps in `data.json` and pin both 2026
   transition boundaries.
 - **The rules engine is pure.** `evaluateInspection(candidate, context)` has no
-  React, storage or navigation in it, which is what lets the same code drive
-  both the attention feed and live validation of a draft that has not been saved
-  yet. The dashboard and the form cannot disagree about what counts as a clash.
+  React, storage or navigation in it, which is what lets the same code drive the
+  attention feed, live validation of a draft that has not been saved yet, the
+  ranking in the inspector picker, and the verification of its own suggested
+  fixes. There is one definition of what counts as a clash.
 - **Tests name real scenarios.** They run against the actual `data.json` rather
   than fixtures, so a regression fails as *"Anna Keller is double booked on 26
   August"* rather than as an abstract case.
@@ -174,6 +198,9 @@ the app container with `onLayout`, which is correct on both targets.
 - **Web output is `single`, not `static`.** Static made the dev server
   server-render every route in Node, where `AsyncStorage` has no `window`. An
   internal tool with local state gains nothing from prerendering.
+- **Safe areas belong to the screen container, not the scroll content.** Padding
+  the content only guarantees the last card clears the notch and the Android
+  navigation bar; everything passing through mid-scroll still renders under it.
 - **Expo SDK 54**, because that is what the Expo Go in the app stores supports.
   The scaffold produced SDK 57, which Expo Go refuses to open — and a build the
   reviewer cannot run is worth nothing.
@@ -182,19 +209,20 @@ the app container with `onLayout`, which is correct on both targets.
 
 ## The three things I would do next
 
-1. **Make the attention feed actionable in place.** Today it takes you to the
-   inspection; it should let you assign the obvious best-fit inspector directly
-   from the row, with one undo. Most of the entries in it have exactly one
-   sensible resolution, and the product already knows what it is.
-
-2. **Replace the flat travel buffer with real distances.** Every project has an
+1. **Replace the flat travel buffer with real distances.** Every project has an
    address. Geocoding them once and using actual travel time would turn "only 30
    minutes between two sites" from a rule of thumb into something a coordinator
-   can trust — and would let the inspector picker rank on who can genuinely get
-   there rather than only on who is free.
+   can trust — and would let both the inspector picker and the one-tap fixes
+   rank on who can genuinely get there rather than only on who is free.
+
+2. **Move site access windows out of the code and onto the project.** They are
+   transcribed by hand today, which is the one place in this product where
+   structure was inferred rather than given. Operations should be able to edit
+   them when a gate time changes, without a deploy — and every rule that depends
+   on them then improves for free.
 
 3. **Close the loop with the inspectors.** Right now the schedule is written by
    the office and read by nobody else. A per-inspector view of their own day,
    and the ability to confirm or decline a booking, is what stops the schedule
-   drifting from what actually happens on site — and it is the natural next step
+   drifting from what actually happens on site — and it is the natural step
    before anyone would trust this to replace the phone calls entirely.
