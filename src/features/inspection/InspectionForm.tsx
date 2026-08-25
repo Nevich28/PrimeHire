@@ -243,6 +243,7 @@ export function InspectionForm({
             placeholder="Bearing replacement pre-work inspection"
             invalid={submitted && Boolean(errors.title)}
             maxLength={120}
+            onSubmit={save}
           />
         </Field>
 

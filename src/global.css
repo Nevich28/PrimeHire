@@ -1,9 +1,27 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+/*
+ * Web-only global styles.
+ *
+ * React Native has no way to express `:focus-visible`, and that distinction is
+ * the whole point of a focus ring: it should appear for somebody navigating by
+ * keyboard and stay out of the way of somebody using a mouse. The browser
+ * already knows which is which, so the ring is left to it and only restyled to
+ * match the app.
+ *
+ * This file is imported through a platform-specific module, so nothing here is
+ * ever bundled for iOS or Android.
+ */
+
+:focus-visible {
+  outline: 2px solid #1b4e82;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Scrolling containers keep the platform scrollbar rather than a custom one. */
+* {
+  scrollbar-color: #cbd3db transparent;
 }

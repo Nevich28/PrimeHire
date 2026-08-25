@@ -7,7 +7,7 @@
  * costs nothing on native.
  */
 
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -31,6 +31,18 @@ export function Sheet({
 }) {
   const isWide = useIsWide();
   const insets = useSafeAreaInsets();
+
+  // `onRequestClose` covers the Android back gesture. On the web, dismissing a
+  // dialog with Escape is something people simply expect, and React Native's
+  // Modal does not wire it up.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !visible) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [visible, onClose]);
 
   return (
     <Modal

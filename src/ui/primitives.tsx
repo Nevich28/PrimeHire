@@ -26,6 +26,9 @@ import {
 
 import { colors, elevation, monoFont, radius, spacing, typography, WIDE_BREAKPOINT } from './theme';
 
+/** Pressable's style callback receives the current interaction state. */
+type PressableState = { pressed: boolean; hovered?: boolean };
+
 /* ------------------------------------------------------------ responsive -- */
 
 const ViewportWidthContext = createContext<number | null>(null);
@@ -186,7 +189,7 @@ export function Button({
       accessibilityState={{ disabled: disabled || busy }}
       disabled={disabled || busy}
       onPress={onPress}
-      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+      style={(state: PressableState) => [
         styles.button,
         {
           backgroundColor: palette.bg,
@@ -194,8 +197,9 @@ export function Button({
           opacity: disabled ? 0.45 : 1,
         },
         fullWidth && styles.buttonFullWidth,
-        hovered && !disabled && { backgroundColor: palette.bgHover },
-        pressed && !disabled && { backgroundColor: palette.bgHover, transform: [{ scale: 0.99 }] },
+        state.hovered && !disabled && { backgroundColor: palette.bgHover },
+        state.pressed &&
+          !disabled && { backgroundColor: palette.bgHover, transform: [{ scale: 0.99 }] },
         style,
       ]}
     >
@@ -261,9 +265,9 @@ export function IconButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+      style={(state: PressableState) => [
         styles.iconButton,
-        (hovered || pressed) && { backgroundColor: colors.neutralSoft },
+        (state.hovered || state.pressed) && { backgroundColor: colors.neutralSoft },
       ]}
     >
       <Ionicons name={icon} size={20} color={tone} />
@@ -289,16 +293,19 @@ export function Chip({
   const palette = TONE_COLORS[tone];
   return (
     <Pressable
-      accessibilityRole="tab"
+      // A button that reports its pressed state, rather than a tab: these are
+      // filters, not a tab strip, and a bare "tab" outside a tablist is not
+      // focusable with a keyboard.
+      accessibilityRole="button"
       accessibilityLabel={count === undefined ? label : `${label}, ${count}`}
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={({ hovered }: { hovered?: boolean }) => [
+      style={(state: PressableState) => [
         styles.chip,
         selected
           ? { backgroundColor: palette.fg, borderColor: palette.fg }
           : { backgroundColor: colors.surface, borderColor: colors.border },
-        hovered && !selected && { borderColor: colors.borderStrong },
+        state.hovered && !selected && { borderColor: colors.borderStrong },
       ]}
     >
       <AppText variant="label" color={selected ? colors.textInverse : colors.textSecondary}>
@@ -362,6 +369,7 @@ export function Input({
   maxLength,
   autoFocus,
   style,
+  onSubmit,
 }: {
   value: string;
   onChangeText: (next: string) => void;
@@ -372,7 +380,10 @@ export function Input({
   maxLength?: number;
   autoFocus?: boolean;
   style?: StyleProp<TextStyle>;
+  /** Fired when the keyboard's return key is pressed on a single-line field. */
+  onSubmit?: () => void;
 }) {
+  const [focused, setFocused] = useState(false);
   return (
     <TextInput
       value={value}
@@ -383,12 +394,15 @@ export function Input({
       keyboardType={keyboardType}
       maxLength={maxLength}
       autoFocus={autoFocus}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onSubmitEditing={onSubmit}
+      returnKeyType={onSubmit ? 'done' : undefined}
       style={[
         styles.input,
         multiline && styles.inputMultiline,
+        focused && !invalid && { borderColor: colors.accent },
         invalid && { borderColor: colors.blocker },
-        // Browsers draw their own focus ring; the app draws its own everywhere.
-        Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : null,
         style,
       ]}
     />
