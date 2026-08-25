@@ -133,70 +133,70 @@ function AttentionRow({
     [issue, item, context]
   );
 
+  // The fix is a sibling of the row, not a child of it. Nesting one pressable
+  // inside another produces a button inside a button on the web, which is
+  // invalid HTML and leaves keyboard and screen reader users with a control
+  // they cannot reach separately.
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${issue.message} ${item ? item.inspection.title : ''}`}
-      onPress={onPress}
-      style={({ pressed, hovered }: PressableState) => [
-        styles.row,
-        (hovered || pressed) && { backgroundColor: colors.surfaceMuted },
-      ]}
-    >
-      <View style={[styles.rowIcon, { backgroundColor: tone.bg }]}>
-        <Ionicons name={presentation.icon} size={14} color={tone.fg} />
-      </View>
+    <View style={styles.row}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${issue.message} ${item ? item.inspection.title : ''}`}
+        onPress={onPress}
+        style={({ pressed, hovered }: PressableState) => [
+          styles.rowMain,
+          (hovered || pressed) && { backgroundColor: colors.surfaceMuted },
+        ]}
+      >
+        <View style={[styles.rowIcon, { backgroundColor: tone.bg }]}>
+          <Ionicons name={presentation.icon} size={14} color={tone.fg} />
+        </View>
 
-      <View style={styles.flex}>
-        <AppText variant="bodyStrong" numberOfLines={1}>
-          {item ? item.inspection.title : 'Inspection'}
-        </AppText>
-        <AppText variant="caption" color={tone.fg} numberOfLines={2}>
-          {issue.message}
-        </AppText>
-        {item ? (
-          <AppText variant="caption" color={colors.textMuted}>
-            {item.project.code} · {formatDayDistance(item.start, now)} at {formatTime(item.start)}
+        <View style={styles.flex}>
+          <AppText variant="bodyStrong" numberOfLines={1}>
+            {item ? item.inspection.title : 'Inspection'}
           </AppText>
-        ) : null}
+          <AppText variant="caption" color={tone.fg} numberOfLines={2}>
+            {issue.message}
+          </AppText>
+          {item ? (
+            <AppText variant="caption" color={colors.textMuted}>
+              {item.project.code} · {formatDayDistance(item.start, now)} at {formatTime(item.start)}
+            </AppText>
+          ) : null}
+        </View>
 
-        {resolution ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`${resolution.label} for ${item?.inspection.title ?? 'this inspection'}`}
-            onPress={(event) => {
-              // The row itself is pressable. On native the inner press wins, but
-              // on the web the click bubbles, so applying a fix would also open
-              // the inspection.
-              event.stopPropagation?.();
-              replaceInspection(resolution.next, resolution.description);
-            }}
-            style={({ pressed, hovered }: PressableState) => [
-              styles.resolve,
-              (hovered || pressed) && { backgroundColor: colors.accent },
-            ]}
-          >
-            {({ hovered, pressed }: PressableState) => (
-              <>
-                <Ionicons
-                  name="flash-outline"
-                  size={13}
-                  color={hovered || pressed ? colors.textInverse : colors.accent}
-                />
-                <AppText
-                  variant="label"
-                  color={hovered || pressed ? colors.textInverse : colors.accent}
-                >
-                  {resolution.label}
-                </AppText>
-              </>
-            )}
-          </Pressable>
-        ) : null}
-      </View>
+        <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+      </Pressable>
 
-      <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-    </Pressable>
+      {resolution ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${resolution.label} for ${item?.inspection.title ?? 'this inspection'}`}
+          onPress={() => replaceInspection(resolution.next, resolution.description)}
+          style={({ pressed, hovered }: PressableState) => [
+            styles.resolve,
+            (hovered || pressed) && { backgroundColor: colors.accent },
+          ]}
+        >
+          {({ hovered, pressed }: PressableState) => (
+            <>
+              <Ionicons
+                name="flash-outline"
+                size={13}
+                color={hovered || pressed ? colors.textInverse : colors.accent}
+              />
+              <AppText
+                variant="label"
+                color={hovered || pressed ? colors.textInverse : colors.accent}
+              >
+                {resolution.label}
+              </AppText>
+            </>
+          )}
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
@@ -213,7 +213,8 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   flex: { flex: 1 },
   rows: { gap: 2 },
-  row: {
+  row: { paddingBottom: spacing.xs },
+  rowMain: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
@@ -225,7 +226,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     alignSelf: 'flex-start',
-    marginTop: spacing.xs,
+    // Lines up under the text, clear of the severity icon's column.
+    marginLeft: spacing.sm + 26 + spacing.md,
     paddingHorizontal: spacing.md,
     paddingVertical: 6,
     borderRadius: radius.sm,

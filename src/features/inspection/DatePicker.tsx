@@ -161,11 +161,13 @@ export function TimeInput({
   value,
   onChange,
   invalid,
+  onFocus,
 }: {
   /** `HH:MM`. */
   value: string;
   onChange: (next: string) => void;
   invalid?: boolean;
+  onFocus?: () => void;
 }) {
   return (
     <Input
@@ -175,6 +177,7 @@ export function TimeInput({
       keyboardType="number-pad"
       invalid={invalid}
       maxLength={5}
+      onFocus={onFocus}
       style={styles.timeInput}
     />
   );

@@ -7,8 +7,16 @@
  * costs nothing on native.
  */
 
-import { useEffect, type ReactNode } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import {
+  Keyboard,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText, IconButton, useIsWide } from './primitives';
@@ -31,6 +39,27 @@ export function Sheet({
 }) {
   const isWide = useIsWide();
   const insets = useSafeAreaInsets();
+
+  /**
+   * A modal is its own window, so the resizing the operating system does for the
+   * screen underneath does not reach it: the cancellation reason would sit
+   * behind the keyboard the moment you started typing it. Tracking the keyboard
+   * and lifting the sheet by that much keeps the field and its buttons visible.
+   */
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const shown = Keyboard.addListener(showEvent, (event) =>
+      setKeyboardHeight(event.endCoordinates.height)
+    );
+    const hidden = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => {
+      shown.remove();
+      hidden.remove();
+    };
+  }, []);
 
   // `onRequestClose` covers the Android back gesture. On the web, dismissing a
   // dialog with Escape is something people simply expect, and React Native's
@@ -68,7 +97,10 @@ export function Sheet({
           style={[
             isWide ? styles.dialog : styles.sheet,
             elevation.raised,
-            !isWide && { paddingBottom: insets.bottom + spacing.lg },
+            !isWide && {
+              paddingBottom: (keyboardHeight || insets.bottom) + spacing.lg,
+              maxHeight: keyboardHeight > 0 ? '100%' : '92%',
+            },
           ]}
         >
           {!isWide ? <View style={styles.grabber} /> : null}

@@ -9,8 +9,15 @@
  */
 
 import { Ionicons } from '@expo/vector-icons';
-import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  type LayoutChangeEvent,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { now as clockNow } from '@/domain/clock';
@@ -101,6 +108,27 @@ export function InspectionForm({
       : 60
   );
 
+  /**
+   * Bringing a field above the keyboard.
+   *
+   * Android shrinks the window when the keyboard opens, which is correct but
+   * leaves whatever you just tapped below the fold — the start time sits under
+   * a full month calendar, so it disappears exactly when you go to edit it.
+   * Each text field records where it is, and focusing one scrolls it into view.
+   */
+  const scrollRef = useRef<ScrollView>(null);
+  const fieldOffsets = useRef<Record<string, number>>({});
+
+  const recordOffset = (key: string) => (event: LayoutChangeEvent) => {
+    fieldOffsets.current[key] = event.nativeEvent.layout.y;
+  };
+
+  const revealField = (key: string) => () => {
+    const y = fieldOffsets.current[key];
+    if (y === undefined) return;
+    scrollRef.current?.scrollTo({ y: Math.max(0, y - spacing.lg), animated: true });
+  };
+
   const [showProjects, setShowProjects] = useState(false);
   const [showInspectors, setShowInspectors] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -188,8 +216,12 @@ export function InspectionForm({
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        // Leaves room to scroll a field clear of the keyboard on the last screen.
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustKeyboardInsets
         showsVerticalScrollIndicator={false}
       >
         <Field label="Project" error={submitted ? errors.project : undefined}>
@@ -279,12 +311,13 @@ export function InspectionForm({
           <DatePicker value={day} now={schedule.now} onChange={setDay} />
         </Field>
 
-        <View style={styles.timeRow}>
+        <View style={styles.timeRow} onLayout={recordOffset('time')}>
           <Field label="Start time" error={submitted ? errors.time : undefined}>
             <TimeInput
               value={time}
               onChange={setTime}
               invalid={submitted && Boolean(errors.time)}
+              onFocus={revealField('time')}
             />
           </Field>
 
@@ -376,15 +409,18 @@ export function InspectionForm({
           </Card>
         ) : null}
 
-        <Field label="Notes" hint="Anything the inspector needs to know before arriving.">
-          <Input
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Confirm temporary supports and photograph bearing seats."
-            multiline
-            maxLength={500}
-          />
-        </Field>
+        <View onLayout={recordOffset('notes')}>
+          <Field label="Notes" hint="Anything the inspector needs to know before arriving.">
+            <Input
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Confirm temporary supports and photograph bearing seats."
+              multiline
+              maxLength={500}
+              onFocus={revealField('notes')}
+            />
+          </Field>
+        </View>
 
         <View style={styles.summary}>
           <Ionicons name={disciplineIcon(type)} size={16} color={colors.textSecondary} />

@@ -380,6 +380,7 @@ export function Input({
   autoFocus,
   style,
   onSubmit,
+  onFocus,
 }: {
   value: string;
   onChangeText: (next: string) => void;
@@ -392,6 +393,8 @@ export function Input({
   style?: StyleProp<TextStyle>;
   /** Fired when the keyboard's return key is pressed on a single-line field. */
   onSubmit?: () => void;
+  /** Lets a scrolling screen bring this field above the keyboard. */
+  onFocus?: () => void;
 }) {
   const [focused, setFocused] = useState(false);
   return (
@@ -404,7 +407,10 @@ export function Input({
       keyboardType={keyboardType}
       maxLength={maxLength}
       autoFocus={autoFocus}
-      onFocus={() => setFocused(true)}
+      onFocus={() => {
+        setFocused(true);
+        onFocus?.();
+      }}
       onBlur={() => setFocused(false)}
       onSubmitEditing={onSubmit}
       returnKeyType={onSubmit ? 'done' : undefined}
