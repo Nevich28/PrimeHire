@@ -16,7 +16,9 @@ the same rules engine that raised the problem: moving `insp-1002` earlier is
 **2. Site notes are rules, not decoration.** *"Security gate closes at 16:00.
 Last permitted site arrival is 15:45."* As grey text that is a nice touch; as a
 rule it stops somebody being sent to a locked gate. Transcribed into
-`site-access.ts`, with the note still shown verbatim beside it.
+`site-access.ts`, with the note still shown verbatim beside it. Parsing the
+prose at runtime would demo well and fail silently the first time an operations
+team reworded a sentence.
 
 **3. Warnings inform, they never block.** Anybody can be booked over a clash or
 outside an access window — coordinators know things the data does not. They just
@@ -54,14 +56,19 @@ a competent CRUD calendar; the framing — that the data is full of operational
 problems and that finding them *is* the product — is the part that was not
 automatic.
 
-**What I changed.** It proposed parsing the site access rules out of the free
-text with regular expressions. That demos well and fails silently when it
-guesses wrong, which is the worst failure mode for a safety-adjacent rule; I
-replaced it with an explicit transcribed table. Two smaller ones: Zustand went
-out after its `import.meta` broke the web bundle on this SDK (the store is
-eighty lines of `useSyncExternalStore` instead), and the keyboard focus ring
-moved from a JavaScript focus state to `:focus-visible`, which can tell a
-keyboard user from a mouse click.
+**What I changed.** The one-tap fixes were built the obvious way, and I only
+found the flaw by using the thing: I pressed *Assign David Baumann* on Anna
+Keller's clash and **two** rows disappeared. That is correct — a double booking
+is reported from both inspections' point of view, and resolving either side
+clears it — but it meant the header was counting one problem as two, and the
+feed behaved like a list of inspections when it is meant to be a list of
+problems. Clashes are now collapsed to a single entry there, while both cards
+in the schedule still carry the warning, because somebody looking at one
+inspection has to see that it is affected.
+
+Two smaller corrections: Zustand went out after its `import.meta` broke the web
+bundle on this SDK, and the keyboard focus ring moved from a JavaScript focus
+state to `:focus-visible`, which can tell a keyboard user from a mouse click.
 
 ## Worth knowing
 
