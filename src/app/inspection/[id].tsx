@@ -7,6 +7,7 @@ import { useInspectionStore } from '@/domain/store';
 import { CancelDialog } from '@/features/inspection/CancelDialog';
 import { InspectionDetail } from '@/features/inspection/InspectionDetail';
 import { ScheduleShell } from '@/features/schedule/ScheduleShell';
+import { UndoBar } from '@/features/schedule/UndoBar';
 import { useSchedule } from '@/state/useSchedule';
 import { AppText, Button, EmptyState, IconButton, useIsWide } from '@/ui/primitives';
 import { colors, spacing } from '@/ui/theme';
@@ -99,6 +100,7 @@ export default function InspectionRoute() {
       </View>
       {detail}
       {dialog}
+      <UndoBar />
     </View>
   );
 }

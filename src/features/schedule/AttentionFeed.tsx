@@ -12,7 +12,9 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { formatDayDistance, formatTime } from '@/domain/datetime';
-import type { Issue } from '@/domain/rules';
+import type { Issue, RuleContext } from '@/domain/rules';
+import { suggestResolution } from '@/domain/resolutions';
+import { useInspectionStore } from '@/domain/store';
 import type { ResolvedInspection } from '@/domain/types';
 import { AppText, Card, toneColors } from '@/ui/primitives';
 import { severityPresentation } from '@/ui/presentation';
@@ -23,11 +25,13 @@ const COLLAPSED_COUNT = 4;
 export function AttentionFeed({
   issues,
   byId,
+  context,
   now,
   onSelect,
 }: {
   issues: Issue[];
   byId: Record<string, ResolvedInspection>;
+  context: RuleContext;
   now: number;
   onSelect: (inspectionId: string) => void;
 }) {
@@ -73,6 +77,7 @@ export function AttentionFeed({
             key={`${issue.inspectionId}-${issue.code}-${index}`}
             issue={issue}
             item={byId[issue.inspectionId]}
+            context={context}
             now={now}
             onPress={() => onSelect(issue.inspectionId)}
           />
@@ -102,16 +107,24 @@ export function AttentionFeed({
 function AttentionRow({
   issue,
   item,
+  context,
   now,
   onPress,
 }: {
   issue: Issue;
   item: ResolvedInspection | undefined;
+  context: RuleContext;
   now: number;
   onPress: () => void;
 }) {
+  const applyResolution = useInspectionStore((state) => state.applyResolution);
   const presentation = severityPresentation[issue.severity];
   const tone = toneColors(presentation.tone);
+
+  // Most entries here have exactly one sensible fix, and the product already
+  // knows what it is. Offering it on the row is the difference between a list
+  // of problems and a list of problems you can clear.
+  const resolution = item ? suggestResolution(issue, item.inspection, context) : null;
 
   return (
     <Pressable
@@ -139,6 +152,40 @@ function AttentionRow({
             {item.project.code} · {formatDayDistance(item.start, now)} at {formatTime(item.start)}
           </AppText>
         ) : null}
+
+        {resolution ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${resolution.label} for ${item?.inspection.title ?? 'this inspection'}`}
+            onPress={(event) => {
+              // The row itself is pressable. On native the inner press wins, but
+              // on the web the click bubbles, so applying a fix would also open
+              // the inspection.
+              event.stopPropagation?.();
+              applyResolution(resolution.next, resolution.description);
+            }}
+            style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+              styles.resolve,
+              (hovered || pressed) && { backgroundColor: colors.accent },
+            ]}
+          >
+            {({ hovered, pressed }: { hovered?: boolean; pressed: boolean }) => (
+              <>
+                <Ionicons
+                  name="flash-outline"
+                  size={13}
+                  color={hovered || pressed ? colors.textInverse : colors.accent}
+                />
+                <AppText
+                  variant="label"
+                  color={hovered || pressed ? colors.textInverse : colors.accent}
+                >
+                  {resolution.label}
+                </AppText>
+              </>
+            )}
+          </Pressable>
+        ) : null}
       </View>
 
       <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
@@ -165,6 +212,19 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.sm,
     borderRadius: radius.md,
+  },
+  resolve: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.surface,
   },
   rowIcon: {
     width: 26,

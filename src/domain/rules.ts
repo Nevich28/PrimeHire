@@ -272,3 +272,56 @@ export function worstSeverity(issues: Issue[]): IssueSeverity | null {
     'info'
   );
 }
+
+/* ------------------------------------------------------- inspector fit -- */
+
+export type InspectorOption = {
+  inspector: Inspector;
+  /** Nothing else booked in this slot. */
+  available: boolean;
+  /** Signed off for the discipline this inspection needs. */
+  matchesSpecialty: boolean;
+  /** What would be wrong if this person took the job. */
+  issues: Issue[];
+};
+
+/**
+ * Rank inspectors for a slot.
+ *
+ * This is the moment the product is most useful: somebody has to go to site
+ * tomorrow morning and the coordinator needs to know who actually can. Rather
+ * than offering a flat alphabetical list, every candidate is run through the
+ * rules engine against the draft and sorted by how well they fit.
+ *
+ * Inactive inspectors are excluded, except when one is already assigned — they
+ * still have to be visible so they can be replaced.
+ */
+export function rankInspectorsForSlot(
+  candidate: Inspection,
+  context: RuleContext
+): InspectorOption[] {
+  const options = Object.values(context.inspectors)
+    .filter((inspector) => inspector.active || inspector.id === candidate.inspectorId)
+    .map((inspector) => {
+      const issues = evaluateInspection({ ...candidate, inspectorId: inspector.id }, context).filter(
+        (issue) =>
+          issue.code === 'double_booked' ||
+          issue.code === 'tight_travel' ||
+          issue.code === 'specialty_mismatch' ||
+          issue.code === 'inspector_inactive'
+      );
+      return {
+        inspector,
+        available: !issues.some((issue) => issue.code === 'double_booked'),
+        matchesSpecialty: !issues.some((issue) => issue.code === 'specialty_mismatch'),
+        issues,
+      };
+    });
+
+  return options.sort((a, b) => {
+    if (a.available !== b.available) return a.available ? -1 : 1;
+    if (a.matchesSpecialty !== b.matchesSpecialty) return a.matchesSpecialty ? -1 : 1;
+    if (a.issues.length !== b.issues.length) return a.issues.length - b.issues.length;
+    return a.inspector.name.localeCompare(b.inspector.name);
+  });
+}

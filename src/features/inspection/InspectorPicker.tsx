@@ -15,8 +15,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { rankInspectorsForSlot } from '@/domain/rules';
 import type { RuleContext } from '@/domain/rules';
-import { rankInspectorsForSlot } from '@/domain/selectors';
 import type { Inspection } from '@/domain/types';
 import { AppText, Badge, toneColors } from '@/ui/primitives';
 import { severityPresentation } from '@/ui/presentation';

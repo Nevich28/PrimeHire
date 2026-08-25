@@ -30,10 +30,25 @@ import type { Inspection } from './types.ts';
 
 export type { InspectionDraft };
 
+/**
+ * The last change to an existing inspection, kept so it can be taken back.
+ *
+ * One step deep on purpose. People undo the thing they just did, immediately,
+ * because they picked the wrong row or the wrong name — a full history stack
+ * would be more machinery for a case that does not come up.
+ */
+export type UndoableChange = {
+  /** The record exactly as it was before the change. */
+  previous: Inspection;
+  /** What happened, phrased for the undo bar. */
+  message: string;
+};
+
 export type InspectionState = {
   inspections: Inspection[];
   /** False until AsyncStorage has been read, so the UI can avoid a flash. */
   hydrated: boolean;
+  undo: UndoableChange | null;
 
   scheduleInspection: (draft: InspectionDraft) => string;
   updateInspection: (id: string, draft: InspectionDraft) => void;
@@ -41,6 +56,11 @@ export type InspectionState = {
   completeInspection: (id: string) => void;
   /** Puts a cancelled or completed inspection back on the schedule. */
   reopenInspection: (id: string) => void;
+  /** Writes an inspection the rules engine suggested, ready to be taken back. */
+  applyResolution: (next: Inspection, message: string) => void;
+  /** Restores the record as it was before the last change. */
+  undoLastChange: () => void;
+  dismissUndo: () => void;
   /** Throws away local changes and restores the delivered dataset. */
   resetToSeed: () => void;
 };
@@ -60,7 +80,25 @@ function setInspections(next: Inspection[]) {
   void persist(next);
 }
 
-function mapInspection(id: string, change: (inspection: Inspection) => Inspection) {
+/**
+ * Applies a change to one inspection and remembers how to take it back.
+ *
+ * Edits made through the form pass `undoMessage: null`: the user is already
+ * looking at what they changed, and an undo bar over the top of it would be
+ * noise. The one-tap fixes and the closing actions are the ones worth guarding.
+ */
+function mapInspection(
+  id: string,
+  change: (inspection: Inspection) => Inspection,
+  undoMessage: string | null
+) {
+  const previous = state.inspections.find((inspection) => inspection.id === id);
+  if (!previous) return;
+
+  state = {
+    ...state,
+    undo: undoMessage ? { previous, message: undoMessage } : null,
+  };
   setInspections(
     state.inspections.map((inspection) => (inspection.id === id ? change(inspection) : inspection))
   );
@@ -69,6 +107,7 @@ function mapInspection(id: string, change: (inspection: Inspection) => Inspectio
 let state: InspectionState = {
   inspections: [...SEED_INSPECTIONS],
   hydrated: false,
+  undo: null,
 
   scheduleInspection: (draft) => {
     const inspection = changes.createInspection(draft, state.inspections, now());
@@ -77,22 +116,51 @@ let state: InspectionState = {
   },
 
   updateInspection: (id, draft) => {
-    mapInspection(id, (inspection) => changes.applyDraft(inspection, draft));
+    mapInspection(id, (inspection) => changes.applyDraft(inspection, draft), null);
   },
 
   cancelInspection: (id, reason) => {
-    mapInspection(id, (inspection) => changes.cancelInspection(inspection, reason, now()));
+    mapInspection(
+      id,
+      (inspection) => changes.cancelInspection(inspection, reason, now()),
+      'Inspection cancelled.'
+    );
   },
 
   completeInspection: (id) => {
-    mapInspection(id, (inspection) => changes.completeInspection(inspection, now()));
+    mapInspection(
+      id,
+      (inspection) => changes.completeInspection(inspection, now()),
+      'Marked as completed.'
+    );
   },
 
   reopenInspection: (id) => {
-    mapInspection(id, changes.reopenInspection);
+    mapInspection(id, changes.reopenInspection, 'Put back on the schedule.');
+  },
+
+  applyResolution: (next, message) => {
+    mapInspection(next.id, () => next, message);
+  },
+
+  undoLastChange: () => {
+    const pending = state.undo;
+    if (!pending) return;
+    state = { ...state, undo: null };
+    setInspections(
+      state.inspections.map((inspection) =>
+        inspection.id === pending.previous.id ? pending.previous : inspection
+      )
+    );
+  },
+
+  dismissUndo: () => {
+    state = { ...state, undo: null };
+    notify();
   },
 
   resetToSeed: () => {
+    state = { ...state, undo: null };
     setInspections([...SEED_INSPECTIONS]);
   },
 };

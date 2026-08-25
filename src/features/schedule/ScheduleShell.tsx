@@ -26,6 +26,7 @@ import { AppText, Button, Chip, EmptyState, Input, useIsWide } from '@/ui/primit
 import { colors, CONTENT_MAX_WIDTH, elevation, radius, spacing } from '@/ui/theme';
 
 import { AttentionFeed } from './AttentionFeed';
+import { UndoBar } from './UndoBar';
 import { InspectionCard } from './InspectionCard';
 
 type FilterKey = 'upcoming' | 'attention' | 'unassigned' | 'history';
@@ -131,6 +132,7 @@ export function ScheduleShell({
           <AttentionFeed
             issues={issues}
             byId={schedule.byId}
+            context={schedule.context}
             now={now}
             onSelect={(id) => {
               const target = schedule.byId[id];
@@ -244,6 +246,7 @@ export function ScheduleShell({
               Schedule
             </AppText>
           </Pressable>
+          <UndoBar bottomOffset={64} />
         </View>
       </View>
     );
@@ -260,6 +263,7 @@ export function ScheduleShell({
       <View style={styles.wideBody}>
         <View style={styles.wideList}>{list}</View>
         <View style={styles.widePane}>{detail}</View>
+        <UndoBar />
       </View>
     </View>
   );
