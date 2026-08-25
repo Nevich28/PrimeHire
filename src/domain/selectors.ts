@@ -77,27 +77,6 @@ export function isOpen(item: ResolvedInspection): boolean {
   return item.inspection.status === 'scheduled';
 }
 
-export function isHistory(item: ResolvedInspection, now: number): boolean {
-  return item.inspection.status !== 'scheduled' || item.end < now;
-}
-
-export type ScheduleCounts = {
-  open: number;
-  unassigned: number;
-  blockers: number;
-  warnings: number;
-};
-
-export function countSchedule(items: ResolvedInspection[], issues: Issue[]): ScheduleCounts {
-  const openItems = items.filter(isOpen);
-  return {
-    open: openItems.length,
-    unassigned: openItems.filter((item) => !item.inspection.inspectorId).length,
-    blockers: issues.filter((issue) => issue.severity === 'blocker').length,
-    warnings: issues.filter((issue) => issue.severity === 'warning').length,
-  };
-}
-
 export type InspectorOption = {
   inspector: Inspector;
   /** Nothing else booked in this slot. */

@@ -57,7 +57,7 @@ export function ScheduleShell({
   const [filter, setFilter] = useState<FilterKey>('upcoming');
   const [query, setQuery] = useState('');
 
-  const { items, issuesByInspection, issues, counts, now } = schedule;
+  const { items, issuesByInspection, issues, now } = schedule;
 
   const filterCounts = useMemo(
     () => ({
@@ -65,10 +65,10 @@ export function ScheduleShell({
       attention: items.filter(
         (item) => isOpen(item) && (issuesByInspection[item.inspection.id]?.length ?? 0) > 0
       ).length,
-      unassigned: counts.unassigned,
+      unassigned: items.filter((item) => isOpen(item) && !item.inspection.inspectorId).length,
       history: items.filter((item) => !isOpen(item)).length,
     }),
-    [items, issuesByInspection, counts.unassigned]
+    [items, issuesByInspection]
   );
 
   const sections = useMemo(() => {

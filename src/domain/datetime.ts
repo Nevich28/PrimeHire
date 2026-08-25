@@ -118,11 +118,6 @@ export function calendarDaysBetween(a: number, b: number): number {
   return Math.round((startOfZurichDay(b) - startOfZurichDay(a)) / DAY_MS);
 }
 
-export function addDays(instant: number, days: number): number {
-  const p = toZurichParts(instant);
-  return fromZurichWallClock(p.year, p.month, p.day + days, p.hour, p.minute);
-}
-
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -142,12 +137,6 @@ export function formatTime(instant: number): string {
 /** `15:30 – 16:30` */
 export function formatTimeRange(start: number, end: number): string {
   return `${formatTime(start)} – ${formatTime(end)}`;
-}
-
-/** `26 Aug` */
-export function formatShortDate(instant: number): string {
-  const p = toZurichParts(instant);
-  return `${p.day} ${MONTHS[p.month - 1].slice(0, 3)}`;
 }
 
 /** `Wednesday, 26 August 2026` */

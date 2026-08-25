@@ -22,7 +22,6 @@ import type { Issue } from '@/domain/rules';
 import { siteAccessFor } from '@/domain/site-access';
 import type { ResolvedInspection } from '@/domain/types';
 import {
-  disciplineIcon,
   priorityPresentation,
   projectStatusLabel,
   severityPresentation,

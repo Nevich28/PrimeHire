@@ -139,11 +139,6 @@ export function Badge({
   );
 }
 
-/** A coloured dot, for priority where a full badge would be too loud. */
-export function Dot({ color }: { color: string }) {
-  return <View style={[styles.dot, { backgroundColor: color }]} />;
-}
-
 /* ------------------------------------------------------------------ card -- */
 
 export function Card({
@@ -463,7 +458,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     alignSelf: 'flex-start',
   },
-  dot: { width: 8, height: 8, borderRadius: radius.pill },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

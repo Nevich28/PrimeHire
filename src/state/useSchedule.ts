@@ -11,8 +11,7 @@ import { useMemo } from 'react';
 import { now } from '@/domain/clock';
 import { evaluateSchedule, groupIssuesByInspection } from '@/domain/rules';
 import type { Issue, RuleContext } from '@/domain/rules';
-import { buildRuleContext, countSchedule, resolveAll } from '@/domain/selectors';
-import type { ScheduleCounts } from '@/domain/selectors';
+import { buildRuleContext, resolveAll } from '@/domain/selectors';
 import { useInspectionStore } from '@/domain/store';
 import type { ResolvedInspection } from '@/domain/types';
 
@@ -21,7 +20,6 @@ export type Schedule = {
   byId: Record<string, ResolvedInspection>;
   issues: Issue[];
   issuesByInspection: Record<string, Issue[]>;
-  counts: ScheduleCounts;
   context: RuleContext;
   now: number;
   hydrated: boolean;
@@ -42,7 +40,6 @@ export function useSchedule(): Schedule {
       byId: Object.fromEntries(items.map((item) => [item.inspection.id, item])),
       issues,
       issuesByInspection: groupIssuesByInspection(issues),
-      counts: countSchedule(items, issues),
       context,
       now: nowMs,
       hydrated,
