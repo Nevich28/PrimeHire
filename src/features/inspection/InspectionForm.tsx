@@ -197,6 +197,7 @@ export function InspectionForm({
         <Field label="Project" error={submitted ? errors.project : undefined}>
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={project ? `Project: ${project.code}. Change project` : 'Choose a project'}
             onPress={() => setShowProjects(true)}
             style={({ hovered }: { hovered?: boolean }) => [
               styles.selector,
@@ -314,6 +315,9 @@ export function InspectionForm({
         <Field label="Inspector">
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={
+              inspector ? `Inspector: ${inspector.name}. Change inspector` : 'Assign an inspector'
+            }
             onPress={() => setShowInspectors(true)}
             style={({ hovered }: { hovered?: boolean }) => [
               styles.selector,

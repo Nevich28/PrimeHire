@@ -55,6 +55,7 @@ export function ProjectPicker({
           <Pressable
             key={project.id}
             accessibilityRole="button"
+            accessibilityLabel={`${project.code}, ${project.name}`}
             accessibilityState={{ selected }}
             onPress={() => onSelect(project.id)}
             style={({ hovered }: { hovered?: boolean }) => [

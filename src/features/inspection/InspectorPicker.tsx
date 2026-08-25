@@ -48,6 +48,7 @@ export function InspectorPicker({
     >
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel="Leave unassigned"
         onPress={() => onSelect(null)}
         style={({ hovered }: { hovered?: boolean }) => [
           styles.option,
@@ -78,6 +79,11 @@ export function InspectorPicker({
           <Pressable
             key={inspector.id}
             accessibilityRole="button"
+            accessibilityLabel={[
+              inspector.name,
+              option.available ? 'available' : 'already booked',
+              ...option.issues.map((issue) => issue.message),
+            ].join('. ')}
             accessibilityState={{ selected }}
             onPress={() => onSelect(inspector.id)}
             style={({ hovered }: { hovered?: boolean }) => [

@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDayHeading, formatLongDate } from '@/domain/datetime';
 import { groupByDay, isOpen } from '@/domain/selectors';
 import { COMPANY } from '@/domain/seed';
+import { useInspectionStore } from '@/domain/store';
 import type { ResolvedInspection } from '@/domain/types';
 import { useSchedule } from '@/state/useSchedule';
 import { AppText, Button, Chip, EmptyState, Input, useIsWide } from '@/ui/primitives';
@@ -193,6 +194,7 @@ export function ScheduleShell({
           />
         </View>
       )}
+      ListFooterComponent={<DemoDataFooter />}
       ListEmptyComponent={
         <EmptyState
           icon={query ? 'search-outline' : 'calendar-clear-outline'}
@@ -276,6 +278,47 @@ function Header({ now, onOpenInspectors }: { now: number; onOpenInspectors: () =
           Inspectors
         </AppText>
       </Pressable>
+    </View>
+  );
+}
+
+/**
+ * Where the data lives, and how to get back to the delivered dataset.
+ *
+ * Changes are kept on the device rather than on a server, which is worth saying
+ * out loud in a tool people share between a laptop and a phone. The reset is
+ * here so anyone reviewing the app can undo their experiments and see the
+ * original `data.json` again.
+ */
+function DemoDataFooter() {
+  const resetToSeed = useInspectionStore((state) => state.resetToSeed);
+  const [confirming, setConfirming] = useState(false);
+
+  return (
+    <View style={styles.footer}>
+      <AppText variant="caption" color={colors.textMuted} style={styles.footerText}>
+        Changes are saved on this device only.
+      </AppText>
+      {confirming ? (
+        <View style={styles.footerActions}>
+          <Button
+            label="Reset to delivered data"
+            variant="danger"
+            onPress={() => {
+              resetToSeed();
+              setConfirming(false);
+            }}
+          />
+          <Button label="Keep my changes" variant="ghost" onPress={() => setConfirming(false)} />
+        </View>
+      ) : (
+        <Button
+          label="Reset demo data"
+          variant="ghost"
+          icon="refresh-outline"
+          onPress={() => setConfirming(true)}
+        />
+      )}
     </View>
   );
 }
@@ -365,6 +408,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   wideBody: { flex: 1, flexDirection: 'row' },
+  footer: { alignItems: 'center', gap: spacing.xs, paddingTop: spacing.xl, paddingBottom: spacing.lg },
+  footerText: { textAlign: 'center' },
+  footerActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center' },
   wideList: {
     width: 460,
     borderRightWidth: 1,

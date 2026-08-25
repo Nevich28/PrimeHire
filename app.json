@@ -27,9 +27,7 @@
         {
           "backgroundColor": "#1B4E82"
         }
-      ],
-      "expo-font",
-      "expo-status-bar"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -8,7 +8,7 @@
  */
 
 import type { ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText, IconButton, useIsWide } from './primitives';
@@ -36,7 +36,11 @@ export function Sheet({
     <Modal
       visible={visible}
       transparent
-      animationType={isWide ? 'fade' : 'slide'}
+      // On the web, react-native-web keeps an animated modal mounted until the
+      // CSS animation reports back, so a dropped animationend event leaves a
+      // dialog that will not close. A desktop dialog appearing instantly is
+      // normal anyway; the phone keeps the sheet transition it should have.
+      animationType={Platform.OS === 'web' ? 'none' : isWide ? 'fade' : 'slide'}
       onRequestClose={onClose}
       statusBarTranslucent
     >

@@ -17,6 +17,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
   calendarDaysBetween,
+  formatLongDate,
   fromZurichWallClock,
   toZurichParts,
   zurichDayKey,
@@ -116,6 +117,7 @@ export function DatePicker({
             <Pressable
               key={key}
               accessibilityRole="button"
+              accessibilityLabel={formatLongDate(cell.instant)}
               accessibilityState={{ selected }}
               onPress={() => onChange(cell.instant)}
               style={({ hovered }: { hovered?: boolean }) => [
